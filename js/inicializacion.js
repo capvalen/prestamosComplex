@@ -23,7 +23,7 @@ $('#agregarBarra').click(function(){
 	$('#txtBarras').val('');}
 });
 $(document).ready(function(){
-$('.modal-iniciarSesion').on('shown.bs.modal', function () {
+	$('.modal-iniciarSesion').on('shown.bs.modal', function () {
 	$('#txtVolverUsuario').focus();
 });
 $('#btnVolverIniciarSesion').click(function () {

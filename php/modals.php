@@ -47,31 +47,6 @@
 </div>
 </div>
 
-<!-- Modal para decir que hubo un error  -->
-<div class="modal fade modal-accionesCaja" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
-<div class="modal-dialog modal-sm" role="document">
-	<div class="modal-content">
-		<div class="modal-header-danger">
-			<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-			<h4 class="modal-title" id="myModalLabel"><i class="icofont icofont-animal-cat-alt-4"></i> Acciones para caja</h4>
-		</div>
-		<div class="modal-body">
-			<div class="container-fluid">
-			<div class="row">
-				<p>¿Qué deseas hacer con el préstamo?</p>
-				<span>
-					<button class="btn btn-block btn-morado btn-outline">Finalizar préstamo</button>
-				</span>
-			</div>
-		</div>
-			
-		<div class="modal-footer">
-			<button class="btn btn-danger btn-outline" data-dismiss="modal" ><i class="icofont icofont-warning-alt"></i> Ok</button>
-		</div>
-	</div>
-	</div>
-</div>
-</div>
 
 <div class="modal fade modal-iniciarSesion" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
 <div class="modal-dialog modal-sm" role="document">
@@ -115,4 +90,77 @@
 		<div class="modal-footer"> <button class="btn btn-primary btn-outline" data-dismiss="modal"></i><i class="icofont icofont-alarm"></i> Aceptar</button></div>
 	</div>
 	</div>
+</div>
+
+<!-- Modal para decir que hubo un error  -->
+<div class="modal fade" id="modalNewCliente" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+<div class="modal-dialog " role="document">
+	<div class="modal-content">
+		<div class="modal-header-infocat">
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			<h4 class="modal-title" id="myModalLabel"><i class="icofont icofont-animal-cat-alt-4"></i> Nuevo cliente</h4>
+		</div>
+		<div class="modal-body">
+			<div class="container-fluid">
+			<div class="row">
+				<p>Por favor rellene cuidadosamente los siguientes campos</p>
+				<div class="row col-xs-12"><label for="">D.N.I.</label> <input type="text" class='form-control'>
+				</div>
+				<div class="row">
+					<div class="col-xs-6"><span class="obligatorio">*</span> <label for="">Apellido paterno</label><input type="text" class="form-control"></div>
+					<div class="col-xs-6"><span class="obligatorio">*</span> <label for="">Apellido materno</label><input type="text" class="form-control"></div>
+				</div>
+				<div class="row">
+				<div class="col-xs-6"><label for="">Nombres</label> <input type="text" class='form-control'></div>
+				<div class="col-xs-6"><label for="">Sexo</label>
+					<select class="selectpicker" id="" title="Seleccione un sexo" data-width="100%" data-live-search="true" data-size="15">
+						<option value="0">Femenino</option>
+						<option value="1">Masculino</option>
+					</select>
+				</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-6">
+					<label for="">Estado civil</label>
+					<select class="selectpicker" id="" title="Seleccione un sexo" data-width="100%" data-live-search="true" data-size="15">
+						<?php include 'OPTEstadoCivil.php'; ?>
+					</select>
+					</div>
+					<div class="col-xs-6">
+						<label for="">N° de hijos dependientes</label>
+						<input type="number" class="form-control" value="0">
+					</div>
+				</div>
+				<div class="row container-fluid">
+					<label for="">Dirección domiciliar</label>
+					<div class="row container-fluid">
+						<div class="col-xs-12 col-sm-6"><input type="text" class="form-control" placeholder='Dirección de hogar'></div>
+						<div class="col-xs-3"><select class="selectpicker" title="Zonas" id="sltDireccionExtra" data-width="100%" data-live-search="true" data-size="15"><?php include 'php/OPTZona.php'; ?></select></div>
+						<div class="col-xs-3"><input type="text" class="form-control" placeholder='#'></div>
+						<div class="col-xs-4" id="divDepartamentos"><select id="slpDepartamentos" class="selectpicker" data-width="100%" data-live-search="true"  data-size="15" title="Departamento"><?php include 'php/OPTDepartamento.php'; ?></select></div>
+						<div class="col-xs-4" id="idProvincias"><select id="slpProvincias" class="selectpicker" data-width="100%" data-live-search="true"  title="Ciudad"></select></div>
+						<div class="col-xs-4" id="idDistritos"><select id="slpDistritos" class="selectpicker" data-width="100%" data-live-search="true" title="Distrito"></select></div>
+					</div>
+					<div class="checkbox checkbox-infocat checkbox-circle">
+						<input type="checkbox" class="styled" checked id="chkDireccion">
+						<label for="chkDireccion">Misma dirección</label>
+					</div>
+				</div>
+				<div class="row container-fluid hidden" id="divDireccionNegocio">
+				<label for="">Es la misma dirección de negocio</label>
+				<input type="text" class="form-control">
+				</div>
+				<div class="row">
+					<div class="col-xs-6"><label for="">Celular personal</label> <input type="text" id="txtCelPersonal" class="form-control"></div>
+					<div class="col-xs-6"><label for="">Celular referencial</label> <input type="text" id="txtCelReferencia" class="form-control"></div>
+				</div>
+			</div>
+		</div>
+			
+		<div class="modal-footer">
+			<button class="btn btn-infocat btn-outline" data-dismiss="modal" ><i class="icofont icofont-save"></i> Guardar</button>
+		</div>
+	</div>
+	</div>
+</div>
 </div>

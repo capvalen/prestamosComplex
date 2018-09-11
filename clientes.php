@@ -13,6 +13,7 @@
 
 		<!-- Bootstrap Core CSS -->
 		<?php include 'headers.php'; ?>
+		<link rel="stylesheet" href="css/awesome-bootstrap-checkbox.css?version=1.0.6">
 </head>
 
 <body>
@@ -34,7 +35,9 @@ input{margin-bottom: 0px;}
 			
 			<div class="form-inline">
 				<div class="form-group"><label for="" style='margin-top:-3px'>Filtro de clientes:</label> <input type="text" class='form-control' placeholder='Clientes'>
-				<button class="btn btn-infocat btn-outline btnSinBorde"><i class="icofont-search"></i></button>
+				<button class="btn btn-infocat btn-outline btnSinBorde" id="btnFiltrarClientes"><i class="icofont-search"></i></button>
+				<button class="btn btn-infocat btn-outline btnSinBorde" id="btnAddClientes"><i class="icofont-ui-add"></i> Nuevo cliente</button>
+
 			</div></div>
 			<div class="container row"><br>
 			Lorem, ipsum dolor sit amet consectetur adipisicing elit. Molestias, deleniti odit at temporibus sapiente eius pariatur exercitationem reprehenderit similique tenetur dignissimos. Dignissimos ipsam doloremque beatae voluptatibus nobis eveniet dolores molestiae?</div>
@@ -56,7 +59,34 @@ input{margin-bottom: 0px;}
 datosUsuario();
 
 $(document).ready(function(){
-	
+	$('.selectpicker').selectpicker();
+	$('#slpDepartamentos').change(function() {
+		var depa = $('.optDepartamento:contains("'+$('#slpDepartamentos').val()+'")').attr('data-tokens');  //$('#divDepartamentos').find('.selected a').attr('data-tokens');
+		$.ajax({url: 'php/OPTProvincia.php', type: 'POST', data: { depa: depa }}).done(function(resp) {
+			$('#slpProvincias').html(resp).selectpicker('refresh');
+		});
+	});
+	$('#slpProvincias').change(function() { 
+		var distri = $('.optProvincia:contains("'+$('#slpProvincias').val()+'")').attr('data-tokens');  //$('#divDepartamentos').find('.selected a').attr('data-tokens');
+		
+		$.ajax({url: 'php/OPTDistrito.php', type: 'POST', data: { distri: distri }}).done(function(resp) {
+			$('#slpDistritos').html(resp).selectpicker('refresh');
+		});
+	});
+});//fin de document ready
+$('#btnAddClientes').click(function() {
+	$('#modalNewCliente').modal('show');
+});
+$('#chkDireccion').change(function() {
+	if( $('#chkDireccion').is(':checked') ){
+		$(this).parent().find('label').text('Dirección de hogar y de negocio son iguales');
+		$('#divDireccionNegocio').addClass('hidden');
+		$('#txtCelPersonal').focus();
+	}else{
+		$(this).parent().find('label').text('Dirección de hogar y de negocio son diferentes');
+		$('#divDireccionNegocio').removeClass('hidden');
+		$('#divDireccionNegocio').find('input').focus();
+	}
 });
 
 </script>
