@@ -133,3 +133,6 @@ $('#txtBuscarNivelGod').keypress(function (e) {
 		}
 	}
 });
+$('#liDatosPersonales').hover(function() {
+	$(this).toggleClass('open');
+});

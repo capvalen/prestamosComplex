@@ -87,3 +87,5 @@ border: none;}
 .navbar-fixed-top {
   z-index: 999!important;
 }
+
+.navbar-nav>li>.dropdown-menu{border-radius: 4px;top: 90%; left: 16px;}

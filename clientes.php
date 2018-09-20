@@ -40,7 +40,19 @@ input{margin-bottom: 0px;}
 
 			</div></div>
 			<div class="container row"><br>
-			Lorem, ipsum dolor sit amet consectetur adipisicing elit. Molestias, deleniti odit at temporibus sapiente eius pariatur exercitationem reprehenderit similique tenetur dignissimos. Dignissimos ipsam doloremque beatae voluptatibus nobis eveniet dolores molestiae?</div>
+				<h4>Últimos clientes registrados</h4>
+				<table class="table">
+				<thead>
+					<tr>
+						<th>N°</th>
+						<th>Apellidos</th>
+						<th>Nombres</th>
+						<th>Dirección</th>
+						<th>@</th>
+					</tr>
+				</thead>
+				</table>
+			</div>
 			<div class='container row' id="divResultados"></div>
 			<!-- Fin de contenido principal -->
 			</div>
@@ -66,11 +78,23 @@ $(document).ready(function(){
 			$('#slpProvincias').html(resp).selectpicker('refresh');
 		});
 	});
-	$('#slpProvincias').change(function() { 
+	$('#slpProvincias').change(function() {
 		var distri = $('.optProvincia:contains("'+$('#slpProvincias').val()+'")').attr('data-tokens');  //$('#divDepartamentos').find('.selected a').attr('data-tokens');
 		
 		$.ajax({url: 'php/OPTDistrito.php', type: 'POST', data: { distri: distri }}).done(function(resp) {
 			$('#slpDistritos').html(resp).selectpicker('refresh');
+		});
+	});
+	$('#slpDepartamentosNegoc').change(function() {
+		var depa = $('.optDepartamento:contains("'+$('#slpDepartamentosNegoc').val()+'")').attr('data-tokens');  //$('#divDepartamentos').find('.selected a').attr('data-tokens');
+		$.ajax({url: 'php/OPTProvincia.php', type: 'POST', data: { depa: depa }}).done(function(resp) {
+			$('#slpProvinciasNegoc').html(resp).selectpicker('refresh');
+		});
+	});
+	$('#slpProvinciasNegoc').change(function() {
+		var distri = $('.optProvincia:contains("'+$('#slpProvinciasNegoc').val()+'")').attr('data-tokens');  //$('#divDepartamentos').find('.selected a').attr('data-tokens');
+		$.ajax({url: 'php/OPTDistrito.php', type: 'POST', data: { distri: distri }}).done(function(resp) {
+			$('#slpDistritosNegoc').html(resp).selectpicker('refresh');
 		});
 	});
 });//fin de document ready
@@ -85,7 +109,7 @@ $('#chkDireccion').change(function() {
 	}else{
 		$(this).parent().find('label').text('Dirección de hogar y de negocio son diferentes');
 		$('#divDireccionNegocio').removeClass('hidden');
-		$('#divDireccionNegocio').find('input').focus();
+		$('#txtDireccionNegocio').focus();
 	}
 });
 

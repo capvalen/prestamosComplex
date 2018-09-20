@@ -66,10 +66,10 @@ $nomArchivo = basename($_SERVER['PHP_SELF']); ?>
 							</div>
 						 </li>
 						 <li class="dropdown" id="liDatosPersonales">
-							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" style="padding-top: 20px;"><i class="icofont icofont-user"></i> <?php echo $_COOKIE['cknomCompleto']; ?> <span class="caret"></span></a>
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" style="padding-top: 20px;"><i class="icofont-user-alt-7"></i> <?php echo $_COOKIE['cknomCompleto']; ?> <span class="caret"></span></a>
 							  <ul class="dropdown-menu">
 							  	<li><a href="#"><i class="icofont-id-card"></i> Ver mi perfil</a></li>
-								<li><a href="#"><i class="icofont-key"></i> Cambiar mi contraseña</a></li>
+								<li><a href="#"><i class="icofont-key"></i> Cambiar contraseña</a></li>
 								<li role="separator" class="divider"></li>
 								<li><a href="php/desconectar.php"><i class="icofont icofont-ui-power"></i> <span class="">Cerrar Sesión</span></a></li>
 							  </ul>

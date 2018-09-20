@@ -19,6 +19,7 @@
 	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 	<link href="css/inicio.css?version=1.0" rel="stylesheet">
 	<link href="css/animate.css" rel="stylesheet">
+	<link rel="stylesheet" href="css/icofont.css?version=1.1"> <!-- iconos extraidos de: http://icofont.com/-->
 	<link rel="shortcut icon" href="images/favicon.png">
 
 </head>
@@ -63,11 +64,11 @@ a:hover{color:#462782;}
 
 			<div class="form-group">
 				<label class="hidden" for="username"><i class="icofont icofont-user"></i> Usuario</label>
-				<input class="form-control text-center" value='' id="txtUser_app" name="campo2" placeholder="Usuario" type="text" autocomplete="off" /><div class="icoTransparent"><i class="icofont icofont-user"></i> </div>
+				<input class="form-control text-center" value='' id="txtUser_app" name="campo2" placeholder="Usuario" type="text" autocomplete="off" /><div class="icoTransparent"><i class="icofont-ui-user"></i> </div>
 			</div>
 			<div class="form-group">
 				<label class="hidden" for="password"><i class="icofont icofont-key"></i> Contraseña</label>
-				<input class="form-control text-center" id="txtPassw" value='' name="campo3" placeholder="Contraseña" type="password" autocomplete="off" /><div class="icoTransparent"><i class="icofont icofont-ui-text-loading"></i>
+				<input class="form-control text-center" id="txtPassw" value='' name="campo3" placeholder="Contraseña" type="password" autocomplete="off" /><div class="icoTransparent"><i class="icofont-ui-text-loading"></i>
 			</div>
 
 			<div class="form-group text-center"><br>

@@ -104,7 +104,9 @@
 			<div class="container-fluid">
 			<div class="row">
 				<p>Por favor rellene cuidadosamente los siguientes campos</p>
-				<div class="row col-xs-12"><label for="">D.N.I.</label> <input type="text" class='form-control'>
+				<div class="row "><div class="col-xs-6">
+					<label for="">D.N.I.</label> <input type="text" class='form-control'>
+				</div>
 				</div>
 				<div class="row">
 					<div class="col-xs-6"><span class="obligatorio">*</span> <label for="">Apellido paterno</label><input type="text" class="form-control"></div>
@@ -135,26 +137,33 @@
 					<label for="">Dirección domiciliar</label>
 					<div class="row container-fluid">
 						<div class="col-xs-12 col-sm-6"><input type="text" class="form-control" placeholder='Dirección de hogar'></div>
-						<div class="col-xs-3"><select class="selectpicker" title="Zonas" id="sltDireccionExtra" data-width="100%" data-live-search="true" data-size="15"><?php include 'php/OPTZona.php'; ?></select></div>
+						<div class="col-xs-3"><select class="selectpicker" title="Zona" id="sltDireccionExtra" data-width="100%" data-live-search="true" data-size="15"><?php include 'php/OPTZona.php'; ?></select></div>
 						<div class="col-xs-3"><input type="text" class="form-control" placeholder='#'></div>
+						<div class="col-xs-12"><input type="text" id='txtReferenciaCasa' class='form-control' placeholder='Referencia de la casa'></div>
 						<div class="col-xs-4" id="divDepartamentos"><select id="slpDepartamentos" class="selectpicker" data-width="100%" data-live-search="true"  data-size="15" title="Departamento"><?php include 'php/OPTDepartamento.php'; ?></select></div>
 						<div class="col-xs-4" id="idProvincias"><select id="slpProvincias" class="selectpicker" data-width="100%" data-live-search="true"  title="Ciudad"></select></div>
 						<div class="col-xs-4" id="idDistritos"><select id="slpDistritos" class="selectpicker" data-width="100%" data-live-search="true" title="Distrito"></select></div>
 					</div>
 					<div class="checkbox checkbox-infocat checkbox-circle">
 						<input type="checkbox" class="styled" checked id="chkDireccion">
-						<label for="chkDireccion">Misma dirección</label>
+						<label for="chkDireccion">Dirección de hogar y de negocio son iguales</label>
 					</div>
 				</div>
 				<div class="row container-fluid hidden" id="divDireccionNegocio">
-				<label for="">Es la misma dirección de negocio</label>
-				<input type="text" class="form-control">
+				    <label style="display: table;">Dirección de negocio</label>
+				    <div class="col-xs-12 col-sm-6"><input type="text" class="form-control" id="txtDireccionNegocio" placeholder='Dirección de negocio'></div>
+						<div class="col-xs-3"><select class="selectpicker" title="Zona" id="sltDireccionExtraNegoc" data-width="100%" data-live-search="true" data-size="15"><?php include 'php/OPTZona.php'; ?></select></div>
+						<div class="col-xs-3"><input type="text" class="form-control" placeholder='#'></div>
+						<div class="col-xs-12"><input type="text" id='txtReferenciaNegoc' class='form-control' placeholder='Referencia del negocio'></div>
+						<div class="col-xs-4" id="divDepartamentosNegoc"><select id="slpDepartamentosNegoc" class="selectpicker" data-width="100%" data-live-search="true"  data-size="15" title="Departamento"><?php include 'php/OPTDepartamento.php'; ?></select></div>
+						<div class="col-xs-4" id="idProvinciasNegoc"><select id="slpProvinciasNegoc" class="selectpicker" data-width="100%" data-live-search="true"  title="Ciudad"></select></div>
+						<div class="col-xs-4" id="idDistritosNegoc"><select id="slpDistritosNegoc" class="selectpicker" data-width="100%" data-live-search="true" title="Distrito"></select></div>
 				</div>
 				<div class="row">
 					<div class="col-xs-6"><label for="">Celular personal</label> <input type="text" id="txtCelPersonal" class="form-control"></div>
 					<div class="col-xs-6"><label for="">Celular referencial</label> <input type="text" id="txtCelReferencia" class="form-control"></div>
 				</div>
-			</div>
+			
 		</div>
 			
 		<div class="modal-footer">
