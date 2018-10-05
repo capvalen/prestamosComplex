@@ -39,21 +39,28 @@ input{margin-bottom: 0px;}
 				<button class="btn btn-infocat btn-outline btnSinBorde" id="btnAddClientes"><i class="icofont-ui-add"></i> Nuevo cliente</button>
 
 			</div></div>
-			<div class="container row"><br>
+			<div class="container-fluid row"><br>
 				<h4>Últimos clientes registrados</h4>
-				<table class="table">
-				<thead>
-					<tr>
-						<th>N°</th>
-						<th>Apellidos</th>
-						<th>Nombres</th>
-						<th>Dirección</th>
-						<th>@</th>
-					</tr>
-				</thead>
-				</table>
+				<div class="table-responsive">
+					<table class="table ">
+					<thead>
+						<tr>
+							<th>Cod.</th>
+							<th>D.N.I.</th>
+							<th>Apellidos y nombres</th>
+							<th>Dirección</th>
+							<th>Celular</th>
+							<th>Estado civil</th>
+							<th>@</th>
+						</tr>
+					</thead>
+					<tbody>
+						<?php require 'php/listarUltimos20Clientes.php';?>
+					</tbody>
+					</table>
+				</div>
 			</div>
-			<div class='container row' id="divResultados"></div>
+			
 			<!-- Fin de contenido principal -->
 			</div>
 		</div>
@@ -112,7 +119,51 @@ $('#chkDireccion').change(function() {
 		$('#txtDireccionNegocio').focus();
 	}
 });
+$('#btnGuardarClienteNew').click(function() {
+	var casa =0;
 
+	if( $('#chkDireccion').is(':checked') ){//true
+		casa=0;}else{ casa=1;}
+		
+	$.ajax({url: 'php/insertarCliente.php', type: 'POST', data: {
+		direccion: $('#txtDireccionCasa').val(),
+		zona: $('#sltDireccionExtra').val(),
+		referencia: $('#txtReferenciaCasa').val(),
+		numero: $('#txtNumeroCasa').val(),
+		departam: $('#divDireccionCasa .optDepartamento:contains("'+$('#slpDepartamentos').val()+'")').attr('data-tokens'),
+		provinc: $('#divDireccionCasa .optProvincia:contains("'+$('#slpProvincias').val()+'")').attr('data-tokens'),
+		distrit: $('#divDireccionCasa .optDistrito:contains("'+$('#slpDistritos').val()+'")').attr('data-tokens'),
+
+		direccionNeg: $('#txtDireccionNegocio').val(),
+		zonaNeg: $('#sltDireccionExtraNegoc').val(),
+		referenciaNeg: $('#txtReferenciaNegoc').val(),
+		numeroNeg: $('#txtNumeroNegoc').val(),
+		departamNeg: $('#divDireccionNegocio .optDepartamento:contains("'+$('#slpDepartamentosNegoc').val()+'")').attr('data-tokens'),
+		provincNeg: $('#divDireccionNegocio .optProvincia:contains("'+$('#slpProvinciasNegoc').val()+'")').attr('data-tokens'),
+		distritNeg: $('#divDireccionNegocio .optDistrito:contains("'+$('#slpDistritosNegoc').val()+'")').attr('data-tokens'),
+
+		dni: $('#txtDniCliente').val(),
+		nombres: $('#txtNombresCliente').val(),
+		paterno: $('#txtPaternoCliente').val(),
+		materno: $('#txtMaternoCliente').val(),
+		hijos: $('#txtNumHijos').val(),
+		sexo: $('#sltSexo').val(),
+		celularPers: $('#txtCelPersonal').val(),
+		celularRef: $('#txtCelReferencia').val(),
+		civil: $('#sltEstadoCivil').val(),
+
+		casa: casa}}).done(function(resp) {
+			if( parseInt(resp)>0 ){
+				location.reload();
+			}
+	});
+});
+// $('.soloNumeros').on('input', function () {
+// 	this.value = this.value.replace(/[^0-9]/g,'');
+// });
+$('.soloNumeros').keypress(function (e) {
+	if( !(e.which >= 48 /* 0 */ && e.which <= 90 /* 9 */)  ) { e.preventDefault(); }
+});
 </script>
 <?php } ?>
 </body>
