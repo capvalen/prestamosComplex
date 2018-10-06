@@ -14,14 +14,13 @@ while($row = mysqli_fetch_array($log, MYSQLI_ASSOC))
 {?>
   
 	<tr>
-    
     <td><?= $row['idCliente']; ?></td>
     <td><?= $row['cliDni']; ?></td>
     <td><?= ucwords($row['cliApellidoPaterno']).' '.ucwords($row['cliApellidoMaterno']).', '. ucwords($row['cliNombres']); ?></td>
     <td><?= ucwords($row['addrDireccion']); ?></td>
     <td><?= $row['cliCelularPersonal']; ?></td>
     <td><?= $row['civDescripcion']; ?></td>
-    <td> <button class="btn btn-sm btn-azul btn-outline btnAsignarSocio"><i class="icofont-ui-add"></i> Asociar</button> </td>
+    <td> <a class="btn btn-sm btn-azul btn-outline btnAsignarSocio" href="solicitud.php?titular=<?= $row['idCliente'];?>"><i class="icofont-ui-add"></i> Crear solicitud</a> </td>
   </tr>
 <?php
 

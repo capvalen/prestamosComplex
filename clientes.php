@@ -34,13 +34,13 @@ input{margin-bottom: 0px;}
 			<h2 class="purple-text text-lighten-1"><i class="icofont-users"></i> Zona clientes</h2><hr>
 			
 			<div class="form-inline">
-				<div class="form-group"><label for="" style='margin-top:-3px'>Filtro de clientes:</label> <input type="text" class='form-control' placeholder='Clientes'>
+				<div class="form-group"><label for="" style='margin-top:-3px'>Filtro de clientes:</label> <input type="text" class='form-control' id="txtClientesZon" placeholder='Clientes'>
 				<button class="btn btn-infocat btn-outline btnSinBorde" id="btnFiltrarClientes"><i class="icofont-search"></i></button>
 				<button class="btn btn-infocat btn-outline btnSinBorde" id="btnAddClientes"><i class="icofont-ui-add"></i> Nuevo cliente</button>
 
 			</div></div>
 			<div class="container-fluid row"><br>
-				<h4>Últimos clientes registrados</h4>
+				<h4><?php if(isset($_GET['buscar'])){echo 'Resultado de la búsqueda';}else{ echo 'Últimos clientes registrados';} ?></h4>
 				<div class="table-responsive">
 					<table class="table ">
 					<thead>
@@ -55,7 +55,13 @@ input{margin-bottom: 0px;}
 						</tr>
 					</thead>
 					<tbody>
-						<?php require 'php/listarUltimos20Clientes.php';?>
+						<?php 
+						if (isset($_GET['buscar'])){
+							require 'php/buscarCliente.php';
+						}else{
+							require 'php/listarUltimos20Clientes.php';
+						}
+						?>
 					</tbody>
 					</table>
 				</div>
@@ -163,6 +169,13 @@ $('#btnGuardarClienteNew').click(function() {
 // });
 $('.soloNumeros').keypress(function (e) {
 	if( !(e.which >= 48 /* 0 */ && e.which <= 90 /* 9 */)  ) { e.preventDefault(); }
+});
+$('#btnFiltrarClientes').click(function() {
+	if( $('#txtClientesZon').val()!=''){
+		window.location.href = 'clientes.php?buscar='+encodeURIComponent($('#txtClientesZon').val());
+	}else{
+		window.location.href = 'clientes.php';
+	}
 });
 </script>
 <?php } ?>

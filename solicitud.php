@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, shrink-to-fit=no, initial-scale=1">
+		<meta name="description" content="">
+		<meta name="author" content="">
+
+		<title>Principal - Sistema Préstamos</title>
+
+		<!-- Bootstrap Core CSS -->
+		<?php include 'headers.php'; ?>
+</head>
+
+<body>
+
+<style>
+
+</style>
+<div id="wrapper">
+	<!-- Sidebar -->
+	<?php include 'menu-wrapper.php' ?>
+	<!-- /#sidebar-wrapper -->
+<!-- Page Content -->
+<div id="page-content-wrapper">
+	<div class="container-fluid ">
+		<div class="row noselect">
+			<div class="col-lg-12 contenedorDeslizable ">
+			<!-- Empieza a meter contenido principal -->
+			<h2 class="purple-text text-lighten-1">Crear solicitud de préstamo <small><?php print $_COOKIE["ckAtiende"]; ?></small></h2><hr>
+			
+			<div class="panel panel-default">
+				<div class="panel-body">
+				<p><strong>Filtro de clientes:</strong></p>
+					<div class="row">
+						<div class="col-xs-6 col-sm-3">
+							<input type="text" id="txtAddCliente" class="form-control">
+						</div>
+						<div class="col-xs-3">
+							<button class="btn btn-primary btn-outline" id="btnBuscarClientesDni"><i class="icofont-search-1"></i> Buscar</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="panel panel-default">
+				<div class="panel-body">
+					<p><strong>Involucrados</strong></p>
+					<table class="table" style="margin-bottom: 0px;">
+						<thead>
+							<tr>
+								<th>D.N.I.</th>
+								<th>Apellidos y nombres</th>
+								<th>Estado civil</th>
+								<th>Cargo</th>
+							</tr>
+						</thead>
+						<tbody id="tbodySocios"></tbody>
+					</table>
+
+				</div>
+			</div>
+
+			<div class="panel panel-default">
+				<div class="panel-body">
+					<p><strong>Cálculos</strong></p>
+					<div class="row">
+						<div class="col-xs-6 col-sm-3">
+							<label for="">Tipo de préstamo:</label>
+							<select class="form-control">
+								<option value="1">1</option>
+							</select>
+						</div>
+					</div>
+					</table>
+
+				</div>
+			</div>
+
+				
+			<!-- Fin de contenido principal -->
+			</div>
+		</div>
+</div>
+<!-- /#page-content-wrapper -->
+</div><!-- /#wrapper -->
+
+<!-- Modal para mostrar los clientes coincidentes -->
+<div class="modal fade" id="mostrarResultadosClientes" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+<div class="modal-dialog modal-lg" role="document">
+	<div class="modal-content">
+		<div class="modal-header-indigo">
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			<h4 class="modal-title" id="myModalLabel"><i class="icofont icofont-help-robot"></i> Resultados de la búsqueda</h4>
+		</div>
+		<div class="modal-body">
+			<table class="table table-hover">
+				<thead>
+					<tr>
+						<th>D.N.I.</th>
+						<th>Apellidos y nombres</th>
+						<th>@</th>
+					</tr>
+				</thead>
+				<tbody id="rowClientesEncontrados">
+				</tbody>
+			</table>
+		</div>
+	</div>
+	</div>
+</div>
+
+<?php include 'footer.php'; ?>
+<?php include 'php/modals.php'; ?>
+<?php include 'php/existeCookie.php'; ?>
+
+<?php if ( isset($_COOKIE['ckidUsuario']) ){?>
+<script>
+datosUsuario();
+
+$(document).ready(function(){
+<?php
+if(isset($_GET['titular'])){
+?>
+agregarClienteCanasta(<?= $_GET['titular']; ?>, 1);
+<?php
+}
+?>
+$('#txtAddCliente').keypress(function (e) {
+	if(e.keyCode == 13){ $('#btnBuscarClientesDni').click(); }
+});
+$('#btnBuscarClientesDni').click(function () {
+	if( $('#txtAddCliente').val()!='' ){
+		$('#rowClientesEncontrados').children().remove();
+		$.ajax({url: 'php/ubicarCliente.php', type: 'POST', data: { buscar: $('#txtAddCliente').val() }}).done(function(resp) {
+			//console.log(resp);
+			var json=JSON.parse(resp);
+			if(json.length==0){
+				$('#rowClientesEncontrados').append(`<tr">
+						<td>No se encontraron coincidencias</td>
+					</tr>`);
+			}else{
+				$.each( JSON.parse(resp) , function(i, dato){
+					$('#rowClientesEncontrados').append(`<tr data-cli="${dato.idCliente}">
+							<td>${dato.cliDni}</td>
+							<td class="mayuscula">${dato.cliApellidoPaterno} ${dato.cliApellidoMaterno} ${dato.cliNombres} </td>
+							<td><button class="btn btn-success btn-sm btn-outline btnSelectCliente" data-id="${dato.idCliente}" ><i class="icofont-ui-add"></i></button></td>
+						</tr>`);				
+				});
+				}
+			});
+		$('#mostrarResultadosClientes').modal('show');
+	}
+});
+$('#rowClientesEncontrados').on('click','.btnSelectCliente', function() {
+	agregarClienteCanasta($(this).attr('data-id'), 3);
+	$('#mostrarResultadosClientes').modal('hide');
+});
+$('#tbodySocios').on('click','.btnRemoveCanasta',function() {
+	$(this).parent().parent().remove();
+	//console.log( $(this).parent().parent().html() );
+});
+});
+
+function agregarClienteCanasta(idCl, cargo) {
+	$.ajax({url: 'php/ubicarDatosCliente.php', type: 'POST', data: { idCli: idCl }}).done(function(resp) {
+//	console.log(resp);
+	var dato = JSON.parse(resp);
+	var botonDelete;
+	if(cargo!=1){
+		botonDelete='<button class="btn btn-danger btn-sm btn-outline btn-sinBorde btn-circle btnRemoveCanasta" data-id="${dato.idCliente}" ><i class="icofont-close"></i></button>';
+	}else{botonDelete="";}
+	$('#tbodySocios').append(`<tr data-cli="${dato[0].idCliente}">
+			<td>${dato[0].cliDni}</td>
+			<td class="mayuscula">${dato[0].cliApellidoPaterno} ${dato[0].cliApellidoMaterno} ${dato[0].cliNombres} </td>
+			<td>${dato[0].civDescripcion}</td>
+			<td><select class="form-control"><?php include 'php/OPTTipoCliente.php';?></select></td>
+			<td>${botonDelete}</td>
+		</tr>`);
+		if(cargo==1){
+			$(`[data-cli="${dato[0].idCliente}"]`).find('select').val(cargo).attr('disabled','true');
+		}else{
+			$(`[data-cli="${dato[0].idCliente}"]`).find('select').val(cargo);
+		}
+		
+});
+
+}
+</script>
+<?php } ?>
+</body>
+
+</html>
