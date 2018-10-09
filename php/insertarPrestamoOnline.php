@@ -53,13 +53,28 @@ switch ($_POST['modo']){
 		$tem= pow((1+ $tea), 1/12)-1;
 		$tEfecDiaria= pow(1+$tem, 1/30)-1;
 		$tSegDiario= $tseg/30;
-		
-		echo $tEfecDiaria;
+		$fechaPago=new DateTime('2018-11-01');
 
-		//$cuota = round(($monto*$interes)/(1-pow((1+$interes),-$plazo)),1, PHP_ROUND_HALF_UP);
+		$lista= '[{
+			"numDia": 0,
+			"fPago": "'.$fecha->format('Y-m-d').'",
+			"dias": 0,
+			"diasAcum": 0,
+			"frc": 0,
+			"sk": '.$monto.',
+			"amortizacion": 0,
+			"interes": 0,
+			"seg1": 0,
+			"segDef": 0,
+			"cuotaSinItf": 0,
+			"totalCuota": 0
+		}]';
+		$jsonPagos= json_decode($lista, true);
+		
 		$intervalo = new DateInterval('P30D'); //aumenta 1 día
+	
+		//$cuota = round(($monto*$interes)/(1-pow((1+$interes),-$plazo)),1, PHP_ROUND_HALF_UP);
 		
-
 		break;
 	default:
 	?> <tr><td>Datos inválidos</td></tr><?php
@@ -110,6 +125,40 @@ if($_POST['modo']!=3){
 	?></tr><?php
 	}
 
+}//fin de if modo=3
+else{
+	echo "\n";
+	$sumaDias=0; $sumaFrc=0;
+	for ($i=0; $i < $plazo ; $i++) {
+		
+		$fechaAnt = new DateTime( $jsonPagos[$i]['fPago']);
+		
+		$sumaDias+=$fechaPago->diff($fechaAnt)->days;
+		$diasAhora= $fechaPago->diff($fechaAnt)->days;
+		$frcCalc= round(1/(pow( 1+$tEfecDiaria , $sumaDias)), 6);
+		$sumaFrc+=$frcCalc;
+		$jsonPagos[]= array(
+			'numDia'=>$i+1,
+			'fPago'=>$fechaPago->format('Y-m-d'),
+			'dias' => $diasAhora,
+			'diasAcum' => $sumaDias,
+			'frc'=> $frcCalc,
+			"sk" => 0,
+			"amortizacion" => 0,
+			"interes" => round((pow( 1+ $tem , $diasAhora/30 )-1)*$jsonPagos[$i]['sk'], 2), //(pow( 1+ $tem , $diasAhora/30 )-1)*$jsonPagos[$i]['sk']
+			"seg1" => 0,
+			"segDef" => 0,
+			"cuotaSinItf" => 0,
+			"totalCuota" => 0
+		);
+		$fechaPago->add($intervalo);
+	}
+
+	for ($i=1; $i <=$plazo ; $i++) { 
+		echo $jsonPagos[$i]['numDia'];
+	}
+	
+	//print_r(	$jsonPagos ); //$jsonPagos[0]['fPago']
 }
 
 function esFeriado($feriados, $dia){
