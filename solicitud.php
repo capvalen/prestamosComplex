@@ -70,13 +70,41 @@
 					<div class="row">
 						<div class="col-xs-6 col-sm-3">
 							<label for="">Tipo de préstamo:</label>
-							<select class="form-control">
-								<option value="1">1</option>
+							<select class="form-control selectpicker" id="sltTipoPrestamo" title="Seleccione un préstamo" data-width="100%" data-live-search="true" data-size="15">
+								<?php include 'php/OPTTipoPrestamo.php'; ?>
 							</select>
 						</div>
+						<div class="col-xs-6 col-sm-3">
+							<label for="">Periodo</label>
+							<input type="number" class="form-control esNumero noEsDecimal text-center" id="txtPeriodo">
+						</div>
+						<div class="col-xs-6 col-sm-3">
+							<label for="">Monto</label>
+							<input type="number" class="form-control esNumero text-center" id="txtMontoPrinc">
+							
+						</div>
+						<div class="col-xs-6 col-sm-3">
+							<button class="btn btn-primary btn-lg btn-outline btnSinBorde" style="margin-top: 10px;" id="btnSimularPagos"><i class="icofont-support-faq"></i> Simular</button>
+						</div>
 					</div>
-					</table>
-
+				</div>
+			</div>
+			<div class="panel panel-default">
+			<div class="panel-body">
+				<p><strong>Resultados:</strong></p>
+				<div class="container row" id="divVariables">
+				</div>
+				<table class="table">
+				<thead>
+					<th>#</th>
+					<th>Fecha</th>
+					<th>Cuota</th>
+					<th>Interés</th>
+					<th>Amortización</th>
+					<th>Saldo</th>
+				</thead>
+					<tbody id="tbodyResultados"></tbody>
+				</table>
 				</div>
 			</div>
 
@@ -120,6 +148,7 @@
 <?php if ( isset($_COOKIE['ckidUsuario']) ){?>
 <script>
 datosUsuario();
+$('.selectpicker').selectpicker();
 
 $(document).ready(function(){
 <?php
@@ -165,6 +194,32 @@ $('#tbodySocios').on('click','.btnRemoveCanasta',function() {
 });
 });
 
+$('#btnSimularPagos').click(function() {
+	$.ajax({url: 'php/insertarPrestamoOnline.php', type: 'POST', data: {
+		modo: $('#sltTipoPrestamo').val(),
+		periodo: $('#txtPeriodo').val(),
+		monto: $('#txtMontoPrinc').val()
+		}}).done(function(resp) {
+		console.log(resp)
+		$('#tbodyResultados').html(resp);
+	});
+	$('#divVariables').children().remove();
+	switch ($('#sltTipoPrestamo').val()) {
+		
+		case "1":
+			$('#divVariables').append(`<p><strong>TED:</strong> <span>0.66%</span></p>`);
+			break;
+		case "2":
+			$('#divVariables').append(`<p><strong>TES:</strong> <span>1.52%</span></p>`);
+			break;
+		case "4":
+			$('#divVariables').append(`<p><strong>TEQ:</strong> <span>2.95%</span></p>`);
+			break;
+		default:
+			break;
+	}
+});
+
 function agregarClienteCanasta(idCl, cargo) {
 	$.ajax({url: 'php/ubicarDatosCliente.php', type: 'POST', data: { idCli: idCl }}).done(function(resp) {
 //	console.log(resp);
@@ -187,7 +242,6 @@ function agregarClienteCanasta(idCl, cargo) {
 		}
 		
 });
-
 }
 </script>
 <?php } ?>

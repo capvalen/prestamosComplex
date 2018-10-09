@@ -6,6 +6,11 @@ $('.esDecimal').change(function(){
 	var valor =campo.val();
 	$(this).val(parseFloat(valor).toFixed(2));
 });
+$('.noEsDecimal').change(function(){
+	var campo = $(this);
+	var valor =campo.val();
+	$(this).val(parseFloat(valor).toFixed(0));
+});
 $('.esMoneda').change(function(){
 	var campo = $(this);
 	var valor =campo.val();

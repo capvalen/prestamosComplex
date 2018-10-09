@@ -1,0 +1,124 @@
+<?php
+header('Content-Type: text/html; charset=utf8');
+date_default_timezone_set('America/Lima');
+include 'conkarl.php';
+
+/* $idCliente='';
+$log = mysqli_query($conection,"SELECT idCliente from Cliente where cliDNI ='".$_POST['jCliente'][0]['dniCli']."';");
+$row = mysqli_fetch_array($log, MYSQLI_ASSOC);
+
+// Primero creamos o verificamos si el cliente ya se encuentra en las BD;
+if( count($row)===1 ){
+	$idCliente=$row['idCliente'];
+}else{
+	$newCliente= "INSERT INTO `cliente`(`idCliente`, `cliApellidos`, `cliNombres`, `cliDni`, `cliDireccion`, `cliCorreo`, `cliCelular`, `cliFijo`, `cliCalificacion`) VALUES (null,'".$_POST['jCliente'][0]['apellidosCli']."','".$_POST['jCliente'][0]['nombreCli']."','".$_POST['jCliente'][0]['dniCli']."','".$_POST['jCliente'][0]['direccionCli']."','".$_POST['jCliente'][0]['correoCli']."','".$_POST['jCliente'][0]['celularCli']."','".$_POST['jCliente'][0]['cotroCelularCli']."',0)";
+	$conection->query($newCliente);
+	
+	$log2 = mysqli_query($conection,"SELECT idCliente from Cliente where cliDNI ='".$_POST['jCliente'][0]['dniCli']."';");
+	$row2 = mysqli_fetch_array($log2, MYSQLI_ASSOC);
+	$idCliente=$row2['idCliente'];
+} */
+
+$fecha = new DateTime();
+
+$feriados = include "feriadosProximos.php";
+$monto = $_POST['monto'];
+$plazo = $_POST['periodo'];
+$saldo = $_POST['monto'];
+$saltoDia = new DateInterval('P1D'); //aumenta 1 día
+
+//Para saber si es sábado(6) o domingo(0):  format('w') 
+switch ($_POST['modo']){
+	case "1": //DIARIO
+		$interes = 0.0066;
+		$cuota = round(($monto*$interes)/(1-pow((1+$interes),-$plazo)),1, PHP_ROUND_HALF_UP);
+		
+		$intervalo = new DateInterval('P1D'); //aumenta 1 día
+		break;
+	case "2": //SEMANAL
+		$interes = 0.0152;
+		$cuota = round(($monto*$interes)/(1-pow((1+$interes),-$plazo)),1, PHP_ROUND_HALF_UP);
+		$intervalo = new DateInterval('P1W'); //aumenta 1 día
+		break;
+	case "4": //QUINCENAL
+		$interes = 0.0295;
+		$cuota = round(($monto*$interes)/(1-pow((1+$interes),-$plazo)),1, PHP_ROUND_HALF_UP);
+		$intervalo = new DateInterval('P15D'); //aumenta 1 día
+		break;
+	case "3": //MENSUAL
+		$tea = 0.4425;
+		$itf= 0.00005;
+		$tseg= 0.00038;
+
+		$tem= pow((1+ $tea), 1/12)-1;
+		$tEfecDiaria= pow(1+$tem, 1/30)-1;
+		$tSegDiario= $tseg/30;
+		
+		echo $tEfecDiaria;
+
+		//$cuota = round(($monto*$interes)/(1-pow((1+$interes),-$plazo)),1, PHP_ROUND_HALF_UP);
+		$intervalo = new DateInterval('P30D'); //aumenta 1 día
+		
+
+		break;
+	default:
+	?> <tr><td>Datos inválidos</td></tr><?php
+	break;
+}
+
+?> 
+<tr><td class='grey-text text-darken-2'><strong>0</strong></td> <td><?= $fecha->format('d/m/Y'); ?></td> <td>-</td><td>-</td> <td>-</td> <td><?= number_format($saldo,2);?></td></tr><?php
+
+if($_POST['modo']!=3){
+	$fecha->add($intervalo);
+	//$cuota = round($monto*$interes/$plazo,2);
+	for ($i=0; $i < $plazo ; $i++) {
+	?> <tr><?php
+		
+		$razon = esFeriado($feriados, $fecha->format('Y-m-d'));
+		if($razon!=false ){
+			//echo "si es feriado";
+			//echo "Feriado ".": ". $fecha->format('d/m/Y'). "<br>";
+			?>
+			<td class='grey-text text-darken-2'>-</td> <td class='grey-text text-darken-2'><?= $fecha->format('d/m/Y'); ?></td> <td class='grey-text text-darken-2'><?= $razon; ?></td> <td></td> <td></td> <td></td>
+			<?php
+			$i--;
+			$fecha->add($saltoDia);
+		}else{
+			//echo "no es feriado";
+			if( $fecha->format('w')=='0' ){
+				//No hacer nada
+				//echo "\nDomingo ".": ". $fecha->format('d/m/Y'). "<br>\n";
+				$i--;?>
+				<td class='grey-text text-darken-2'>-</td> <td class='grey-text text-darken-2'><?= $fecha->format('d/m/Y'); ?></td> <td class='grey-text text-darken-2'>Domingo</td> <td></td> <td></td> <td></td>
+				<?php
+				$fecha->add($saltoDia);
+			// }else if($fecha->format('w')=='6'){ 
+			// 	//echo "Sábado ".": ". $fecha->format('d/m/Y'). "<br>";  ---------SI SE CUENTAN SABADOS EN ESTE SISTEMA---------
+			// 	$i--;
+			}else{
+				//$suma+=$cuota;
+				//$saldo = $saldo*$interes;
+				$interesVariable= round($saldo * $interes, 1, PHP_ROUND_HALF_UP);
+				$amortizacion = round($cuota-$interesVariable, 1, PHP_ROUND_HALF_UP);
+				$saldo = $saldo -$amortizacion;
+				//echo "Día #".($i+1).": ". $fecha->format('d/m/Y') . "<br>";
+				?><td class='grey-text text-darken-2'><strong><?= $i+1; ?></strong></td> <td class='grey-text text-darken-2'><?= $fecha->format('d/m/Y'); ?></td> <td class='grey-text text-darken-2'>S/ <?= number_format($cuota, 2); ?></td> <td><?= number_format($interesVariable,2); ?></td> <td><?= number_format($amortizacion,2); ?></td> <td><?= number_format($saldo, 2);?></td> <?php
+				$fecha->add($intervalo);
+			}
+		}
+	?></tr><?php
+	}
+
+}
+
+function esFeriado($feriados, $dia){
+	foreach ($feriados as $llave => $valor) {
+		if($valor["ferFecha"]==$dia){
+			return $valor["ferDescripcion"]; break;
+		}
+	}
+	return false;
+}
+
+?>
