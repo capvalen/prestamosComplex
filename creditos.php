@@ -46,6 +46,7 @@
 				</div>
 			</div>
 
+<?php if(isset( $_GET['titular'])): ?>
 			<div class="panel panel-default">
 				<div class="panel-body">
 					<p><strong>Involucrados</strong></p>
@@ -95,19 +96,15 @@
 				<div class="container row" id="divVariables">
 				</div>
 				<table class="table">
-				<thead>
-					<th>#</th>
-					<th>Fecha</th>
-					<th>Cuota</th>
-					<th>Interés</th>
-					<th>Amortización</th>
-					<th>Saldo</th>
+				<thead id="theadResultados">
+				
 				</thead>
 					<tbody id="tbodyResultados"></tbody>
 				</table>
 				</div>
 			</div>
 
+<?php endif; ?>
 				
 			<!-- Fin de contenido principal -->
 			</div>
@@ -208,12 +205,45 @@ $('#btnSimularPagos').click(function() {
 		
 		case "1":
 			$('#divVariables').append(`<p><strong>TED:</strong> <span>0.66%</span></p>`);
+			$('#theadResultados').html(`	<th>#</th>
+					<th>Fecha</th>
+					<th>Cuota</th>
+					<th>Interés</th>
+					<th>Amortización</th>
+					<th>Saldo</th>`);
 			break;
 		case "2":
 			$('#divVariables').append(`<p><strong>TES:</strong> <span>1.52%</span></p>`);
+			$('#theadResultados').html(`	<th>#</th>
+					<th>Fecha</th>
+					<th>Cuota</th>
+					<th>Interés</th>
+					<th>Amortización</th>
+					<th>Saldo</th>`);
 			break;
 		case "4":
 			$('#divVariables').append(`<p><strong>TEQ:</strong> <span>2.95%</span></p>`);
+			$('#theadResultados').html(`	<th>#</th>
+					<th>Fecha</th>
+					<th>Cuota</th>
+					<th>Interés</th>
+					<th>Amortización</th>
+					<th>Saldo</th>`);
+			break;
+		case "3":
+			$('#theadResultados').html(`	<th>#</th>
+					<th>Fecha pago</th>
+					<th>Días</th>
+					<th>Días Acum.</th>
+					<th>FRC</th>
+					<th>SK</th>
+					<th>Amortización</th>
+					<th>Interés</th>
+					<th>Seg 1</th>
+					<th>Seg Def</th>
+					<th>Cuota sin ITF</th>
+					<th>ITF</th>
+					<th>Total Cuota</th>`);
 			break;
 		default:
 			break;
@@ -235,11 +265,16 @@ function agregarClienteCanasta(idCl, cargo) {
 			<td><select class="form-control"><?php include 'php/OPTTipoCliente.php';?></select></td>
 			<td>${botonDelete}</td>
 		</tr>`);
+
+		$(`[data-cli="${dato[0].idCliente}"]`).find('select').find('[value="1"]').attr('disabled', 'true');
+		$(`[data-cli="${dato[0].idCliente}"]`).find('select').find('[value="2"]').attr('disabled', 'true');
+
 		if(cargo==1){
 			$(`[data-cli="${dato[0].idCliente}"]`).find('select').val(cargo).attr('disabled','true');
 		}else{
 			$(`[data-cli="${dato[0].idCliente}"]`).find('select').val(cargo);
 		}
+			
 		
 });
 }

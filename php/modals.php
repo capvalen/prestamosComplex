@@ -136,9 +136,10 @@
 				<div class="row container-fluid" id="divDireccionCasa">
 					<label for="">Dirección domiciliar</label>
 					<div class="row container-fluid">
-						<div class="col-xs-12 col-sm-6"><input type="text" class="form-control" id="txtDireccionCasa"  placeholder='Dirección de hogar'></div>
-						<div class="col-xs-3"><select class="selectpicker" title="Zona" id="sltDireccionExtra" data-width="100%" data-live-search="true" data-size="15"><?php include 'php/OPTZona.php'; ?></select></div>
-						<div class="col-xs-3"><input type="text" class="form-control" id="txtNumeroCasa" placeholder='#'></div>
+						<div class="col-xs-4" id="divCalles"><select id="slpCalles" class="selectpicker" data-width="100%" data-live-search="true"  data-size="15" title="Calle"><?php include 'php/OPTCalles.php'; ?></select></div>
+						<div class="col-xs-12 col-sm-8"><input type="text" class="form-control" id="txtDireccionCasa"  placeholder='Dirección de hogar'></div>
+						<div class="col-xs-4"><input type="text" class="form-control" id="txtNumeroCasa" placeholder='#'></div>
+						<div class="col-xs-4"><select class="selectpicker" title="Zona" id="sltDireccionExtra" data-width="100%" data-live-search="true" data-size="15"><?php include 'php/OPTZona.php'; ?></select></div>
 						<div class="col-xs-12"><input type="text" id='txtReferenciaCasa' class='form-control' placeholder='Referencia de la casa'></div>
 						<div class="col-xs-4" id="divDepartamentos"><select id="slpDepartamentos" class="selectpicker" data-width="100%" data-live-search="true"  data-size="15" title="Departamento"><?php include 'php/OPTDepartamento.php'; ?></select></div>
 						<div class="col-xs-4" id="idProvincias"><select id="slpProvincias" class="selectpicker" data-width="100%" data-live-search="true"  title="Ciudad"></select></div>
@@ -150,10 +151,11 @@
 					</div>
 				</div>
 				<div class="row container-fluid hidden" id="divDireccionNegocio">
+					<div class="col-xs-4" id="divCallesNeg"><select id="slpCallesNeg" class="selectpicker" data-width="100%" data-live-search="true"  data-size="15" title="Calle"><?php include 'php/OPTCalles.php'; ?></select></div>
 				    <label style="display: table;">Dirección de negocio</label>
 				    <div class="col-xs-12 col-sm-6"><input type="text" class="form-control" id="txtDireccionNegocio" placeholder='Dirección de negocio'></div>
-						<div class="col-xs-3"><select class="selectpicker" title="Zona" id="sltDireccionExtraNegoc" data-width="100%" data-live-search="true" data-size="15"><?php include 'php/OPTZona.php'; ?></select></div>
-						<div class="col-xs-3"><input type="text" class="form-control" id="txtNumeroNegoc" placeholder='#'></div>
+						<div class="col-xs-4"><input type="text" class="form-control" id="txtNumeroNegoc" placeholder='#'></div>
+						<div class="col-xs-4"><select class="selectpicker" title="Zona" id="sltDireccionExtraNegoc" data-width="100%" data-live-search="true" data-size="15"><?php include 'php/OPTZona.php'; ?></select></div>
 						<div class="col-xs-12"><input type="text" id='txtReferenciaNegoc' class='form-control' placeholder='Referencia del negocio'></div>
 						<div class="col-xs-4" id="divDepartamentosNegoc"><select id="slpDepartamentosNegoc" class="selectpicker" data-width="100%" data-live-search="true"  data-size="15" title="Departamento"><?php include 'php/OPTDepartamento.php'; ?></select></div>
 						<div class="col-xs-4" id="idProvinciasNegoc"><select id="slpProvinciasNegoc" class="selectpicker" data-width="100%" data-live-search="true"  title="Ciudad"></select></div>

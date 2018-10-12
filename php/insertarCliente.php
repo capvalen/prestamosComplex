@@ -3,7 +3,7 @@ require("conkarl.php");
 header('Content-Type: text/html; charset=utf8');
 
 
-$sql= "call insertarDireccion('{$_POST['direccion']}',{$_POST['zona']}, '{$_POST['referencia']}', '{$_POST['numero']}', {$_POST['departam']}, {$_POST['provinc']}, {$_POST['distrit']}, 0 )";
+$sql= "call insertarDireccion('{$_POST['direccion']}',{$_POST['zona']}, '{$_POST['referencia']}', '{$_POST['numero']}', {$_POST['departam']}, {$_POST['provinc']}, {$_POST['distrit']}, 0, {$_POST['calle']} )";
 
 $consultaDepos = $conection->prepare($sql);
 $consultaDepos ->execute();
@@ -17,7 +17,7 @@ $consultaDepos->close();
 
 if($_POST['casa']==1){
 
-  $sql= "call insertarDireccion('{$_POST['direccionNeg']}',{$_POST['zonaNeg']}, '{$_POST['referenciaNeg']}', '{$_POST['numeroNeg']}', {$_POST['departamNeg']}, {$_POST['provincNeg']}, {$_POST['distritNeg']}, 1 )";
+  $sql= "call insertarDireccion('{$_POST['direccionNeg']}',{$_POST['zonaNeg']}, '{$_POST['referenciaNeg']}', '{$_POST['numeroNeg']}', {$_POST['departamNeg']}, {$_POST['provincNeg']}, {$_POST['distritNeg']}, 1, {$_POST['calleNeg']} )";
 
   $consultaDepos = $conection->prepare($sql);
   $consultaDepos ->execute();

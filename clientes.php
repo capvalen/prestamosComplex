@@ -19,7 +19,7 @@
 <body>
 
 <style>
-input{margin-bottom: 0px;}
+/* input{margin-bottom: 0px;} */
 </style>
 <div id="wrapper">
 	<!-- Sidebar -->
@@ -34,7 +34,7 @@ input{margin-bottom: 0px;}
 			<h2 class="purple-text text-lighten-1"><i class="icofont-users"></i> Zona clientes</h2><hr>
 			
 			<div class="form-inline">
-				<div class="form-group"><label for="" style='margin-top:-3px'>Filtro de clientes:</label> <input type="text" class='form-control' id="txtClientesZon" placeholder='Clientes'>
+				<div class="form-group"><label for="" style='margin-top:-3px'>Filtro de clientes:</label> <input type="text" class='form-control' id="txtClientesZon" placeholder='Clientes' autocomplete="off" style="margin-bottom: 0px;">
 				<button class="btn btn-infocat btn-outline btnSinBorde" id="btnFiltrarClientes"><i class="icofont-search"></i></button>
 				<button class="btn btn-infocat btn-outline btnSinBorde" id="btnAddClientes"><i class="icofont-ui-add"></i> Nuevo cliente</button>
 
@@ -59,7 +59,7 @@ input{margin-bottom: 0px;}
 						if (isset($_GET['buscar'])){
 							require 'php/buscarCliente.php';
 						}else{
-							require 'php/listarUltimos20Clientes.php';
+							//require 'php/listarUltimos20Clientes.php';
 						}
 						?>
 					</tbody>
@@ -73,6 +73,31 @@ input{margin-bottom: 0px;}
 </div>
 <!-- /#page-content-wrapper -->
 </div><!-- /#wrapper -->
+
+<!-- Modal para mostrar buscar esposa -->
+<div class="modal fade" id="mostrarAsignarEsposa" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+<div class="modal-dialog modal-sm" role="document">
+	<div class="modal-content">
+		<div class="modal-header-danger">
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			<h4 class="modal-title" id="myModalLabel"><i class="icofont icofont-help-robot"></i> Buscar esposa</h4>
+		</div>
+		<div class="modal-body ">
+			<div class="row"><div class="col-xs-12">
+				<p>Ingrese el DNI, y luego presione <kbd>Enter</kbd></p>
+				<input type="text" id="txtDniConyugue" class="form-control input-lg text-center inputGrande" placeholder="DNI">
+			</div></div>
+			<label for="">Resultado:</label>
+			<h4 class="text-center"><strong class="mayuscula" id="strNombreConyugue"></strong></h4>
+			
+
+		</div>
+		<div class="modal-footer">
+			<button class="btn btn-default btn-outline hidden" id="btnGuardarConyugue"><i class="icofont-love"></i> Agregar conyugue</button>
+		</div>
+	</div>
+	</div>
+</div>
 
 
 <?php include 'footer.php'; ?>
@@ -139,6 +164,7 @@ $('#btnGuardarClienteNew').click(function() {
 		departam: $('#divDireccionCasa .optDepartamento:contains("'+$('#slpDepartamentos').val()+'")').attr('data-tokens'),
 		provinc: $('#divDireccionCasa .optProvincia:contains("'+$('#slpProvincias').val()+'")').attr('data-tokens'),
 		distrit: $('#divDireccionCasa .optDistrito:contains("'+$('#slpDistritos').val()+'")').attr('data-tokens'),
+		calle: $('#slpCalles').val(),
 
 		direccionNeg: $('#txtDireccionNegocio').val(),
 		zonaNeg: $('#sltDireccionExtraNegoc').val(),
@@ -147,6 +173,7 @@ $('#btnGuardarClienteNew').click(function() {
 		departamNeg: $('#divDireccionNegocio .optDepartamento:contains("'+$('#slpDepartamentosNegoc').val()+'")').attr('data-tokens'),
 		provincNeg: $('#divDireccionNegocio .optProvincia:contains("'+$('#slpProvinciasNegoc').val()+'")').attr('data-tokens'),
 		distritNeg: $('#divDireccionNegocio .optDistrito:contains("'+$('#slpDistritosNegoc').val()+'")').attr('data-tokens'),
+		calleNeg: $('#slpCallesNeg').val(),
 
 		dni: $('#txtDniCliente').val(),
 		nombres: $('#txtNombresCliente').val(),
@@ -158,7 +185,7 @@ $('#btnGuardarClienteNew').click(function() {
 		celularRef: $('#txtCelReferencia').val(),
 		civil: $('#sltEstadoCivil').val(),
 
-		casa: casa}}).done(function(resp) {
+		casa: casa}}).done(function(resp) { console.log(resp)
 			if( parseInt(resp)>0 ){
 				location.reload();
 			}
@@ -170,12 +197,62 @@ $('#btnGuardarClienteNew').click(function() {
 $('.soloNumeros').keypress(function (e) {
 	if( !(e.which >= 48 /* 0 */ && e.which <= 90 /* 9 */)  ) { e.preventDefault(); }
 });
+$('#txtClientesZon').keypress(function (e) { if(e.keyCode == 13){ $('#btnFiltrarClientes').click(); } });
 $('#btnFiltrarClientes').click(function() {
 	if( $('#txtClientesZon').val()!=''){
 		window.location.href = 'clientes.php?buscar='+encodeURIComponent($('#txtClientesZon').val());
 	}else{
 		window.location.href = 'clientes.php';
 	}
+});
+$('.btnLlamarEsposo').click(function() {
+	var id= $(this).attr('data-id')
+	var elId= $(this).attr('data-sex')
+	$('#strNombreConyugue').attr('data-llama', id );
+	$('#strNombreConyugue').attr('data-idSexLlama', elId );
+	$('#mostrarAsignarEsposa').modal('show');
+});
+$('#mostrarAsignarEsposa').on('shown.bs.modal', function () { $('#txtDniConyugue').focus(); });
+$('#txtDniConyugue').keypress(function(e){
+	var sex=0;
+	if($('#strNombreConyugue').attr('data-idSexLlama')==1){
+		sex=0;
+	}else{
+		sex=1
+	}
+	if(e.keyCode == 13){ 
+		$.ajax({url: 'php/encontrarConyugue.php', type: 'POST', data: { dni: $('#txtDniConyugue').val(), sex: sex}}).done(function(resp) {
+			var dato=JSON.parse(resp);
+			
+			if(dato.length==0){
+				$('#btnGuardarConyugue').addClass('hidden');
+				$('#strNombreConyugue').text('Aún no hay clientes de género opuesto con éste DNI');
+			}else if(dato.length>1){
+				$('#btnGuardarConyugue').addClass('hidden');
+				$('#strNombreConyugue').text('Éste DNI está duplicado, comuníquelo con soporte');
+			}else{
+				$('#btnGuardarConyugue').removeClass('hidden');
+				$('#strNombreConyugue').html('<i class="icofont-gavel"></i> ' +dato[0].cliApellidoPaterno.toLowerCase() + ' ' + dato[0].cliApellidoMaterno.toLowerCase() + ', ' +dato[0].cliNombres.toLowerCase());
+				$('#strNombreConyugue').attr('data-id', dato[0].idCliente );
+				$('#strNombreConyugue').attr('data-sex', dato[0].cliSexo );
+			}
+		});
+	 }
+});
+$('#btnGuardarConyugue').click(function() {
+	var idVaron =0, idDama =0;
+
+	if( $('#strNombreConyugue').attr('data-sex')==1 ){
+		idVaron=$('#strNombreConyugue').attr('data-id');
+		idDama= $('#strNombreConyugue').attr('data-llama');
+	}else{
+		idDama=$('#strNombreConyugue').attr('data-id');
+		idVaron= $('#strNombreConyugue').attr('data-llama');
+	}
+	$.ajax({url: 'php/insertarMatrimonio.php', type: 'POST', data: {idDama: idDama,
+idVaron: idVaron }}).done(function(resp) {
+		console.log(resp)
+	});
 });
 </script>
 <?php } ?>

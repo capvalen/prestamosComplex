@@ -12,7 +12,7 @@ $nomArchivo = basename($_SERVER['PHP_SELF']); ?>
 				<a href="clientes.php"><i class="icofont-users"></i> Clientes</a>
 		</li>
 		<li <?php if($nomArchivo =='creditos.php') echo 'class="active"'; ?>>
-				<a href="creditos"><i class="icofont-handshake-deal"></i> Créditos</a>
+				<a href="creditos.php"><i class="icofont-handshake-deal"></i> Créditos</a>
 		</li>
 		<li <?php if($nomArchivo =='caja.php') echo 'class="active"'; ?>>
 				<a href="caja.php"><i class="icofont-shopping-cart"></i> Caja</a>

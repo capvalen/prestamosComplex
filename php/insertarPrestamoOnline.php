@@ -52,7 +52,7 @@ switch ($_POST['modo']){
 
 		$tem= pow((1+ $tea), 1/12)-1;
 		$tEfecDiaria= pow(1+$tem, 1/30)-1;
-		$tSegDiario= $tseg/30;
+		$tSegDiario= round($tseg/30,8);
 		$fechaPago=new DateTime('2018-11-01');
 
 		$lista= '[{
@@ -67,12 +67,14 @@ switch ($_POST['modo']){
 			"seg1": 0,
 			"segDef": 0,
 			"cuotaSinItf": 0,
+			"conItf": 0,
 			"totalCuota": 0
 		}]';
-		$jsonPagos= json_decode($lista, true);
 		
 		$intervalo = new DateInterval('P30D'); //aumenta 1 día
-	
+		$jsonPagos= json_decode($lista, true);
+		
+		//print_r($jsonPagos[0]['fPago']);
 		//$cuota = round(($monto*$interes)/(1-pow((1+$interes),-$plazo)),1, PHP_ROUND_HALF_UP);
 		
 		break;
@@ -118,7 +120,7 @@ if($_POST['modo']!=3){
 				$amortizacion = round($cuota-$interesVariable, 1, PHP_ROUND_HALF_UP);
 				$saldo = $saldo -$amortizacion;
 				//echo "Día #".($i+1).": ". $fecha->format('d/m/Y') . "<br>";
-				?><td class='grey-text text-darken-2'><strong><?= $i+1; ?></strong></td> <td class='grey-text text-darken-2'><?= $fecha->format('d/m/Y'); ?></td> <td class='grey-text text-darken-2'>S/ <?= number_format($cuota, 2); ?></td> <td><?= number_format($interesVariable,2); ?></td> <td><?= number_format($amortizacion,2); ?></td> <td><?= number_format($saldo, 2);?></td> <?php
+				?><td class='grey-text text-darken-2'><strong><?= $i+1; ?></strong></td> <td class='grey-text text-darken-2'><?= $fecha->format('d/m/Y'); ?></td> <td class='grey-text text-darken-2'>S/ <?= number_format($cuota, 2); ?></td> <td class='grey-text text-darken-2'><?= number_format($interesVariable,2); ?></td> <td class='grey-text text-darken-2'><?= number_format($amortizacion,2); ?></td> <td class='grey-text text-darken-2'><?= number_format($saldo, 2);?></td> <?php
 				$fecha->add($intervalo);
 			}
 		}
@@ -145,20 +147,54 @@ else{
 			'frc'=> $frcCalc,
 			"sk" => 0,
 			"amortizacion" => 0,
-			"interes" => round((pow( 1+ $tem , $diasAhora/30 )-1)*$jsonPagos[$i]['sk'], 2), //(pow( 1+ $tem , $diasAhora/30 )-1)*$jsonPagos[$i]['sk']
+			"interes" => 0, //round((pow( 1+ $tem , $diasAhora/30 )-1)*$jsonPagos[$i]['sk'], 2)
 			"seg1" => 0,
 			"segDef" => 0,
 			"cuotaSinItf" => 0,
+			"conItf" => 0,
 			"totalCuota" => 0
 		);
 		$fechaPago->add($intervalo);
 	}
-
+	$sumaSeg=0;
 	for ($i=1; $i <=$plazo ; $i++) { 
-		echo $jsonPagos[$i]['numDia'];
+		
+		$jsonPagos[$i]['interes']=round((pow( 1+ $tem , $jsonPagos[$i]['dias']/30 )-1)*$jsonPagos[$i-1]['sk'], 2);
+		$jsonPagos[$i]['amortizacion']=round($monto/$sumaFrc-$jsonPagos[$i]['interes'],2);
+		$jsonPagos[$i]['sk']=round($jsonPagos[$i-1]['sk']-$jsonPagos[$i]['amortizacion'],2);
+		$segInst= round($jsonPagos[$i-1]['sk']*$jsonPagos[$i]['dias']*$tSegDiario,2);
+		$sumaSeg+=$segInst;
+		$jsonPagos[$i]['seg1']=$segInst;
+		//echo $jsonPagos[$i]['interes']."\n";
+	//	print_r(	$jsonPagos[$i] );
 	}
 	
-	//print_r(	$jsonPagos ); //$jsonPagos[0]['fPago']
+	for ($j=1; $j <= $plazo ; $j++) { 
+		$jsonPagos[$j]['seg1']=  round($jsonPagos[$j-1]['sk']*$jsonPagos[$j]['dias']*$tSegDiario,2);
+		$jsonPagos[$j]['segDef']=round($sumaSeg/$plazo,2);
+		$jsonPagos[$j]['cuotaSinItf'] = $jsonPagos[$j]['amortizacion']+$jsonPagos[$j]['interes']+$jsonPagos[$j]['segDef'];
+		$jsonPagos[$j]['conItf']= $jsonPagos[$j]['cuotaSinItf']*$itf;
+		$jsonPagos[$j]['totalCuota']=round($jsonPagos[$j]['cuotaSinItf'] +$jsonPagos[$j]['conItf'],2);
+		?>
+	<tr>
+	<td class='grey-text text-darken-2'><strong><?= $j; ?></strong></td>
+	<td class='grey-text text-darken-2'><?php $fechaDispl= strtotime($jsonPagos[$j]['fPago']); echo date('d/m/Y',$fechaDispl); ?></td>
+	<td class='grey-text text-darken-2'><?= $jsonPagos[$j]['dias']; ?></td>
+	<td class='grey-text text-darken-2'><?= $jsonPagos[$j]['diasAcum'];?></td>
+	<td class='grey-text text-darken-2'><?= $jsonPagos[$j]['frc'];?></td>
+	<td class='grey-text text-darken-2'><?= $jsonPagos[$j]['sk'];?></td>
+	<td class='grey-text text-darken-2'><?= number_format($jsonPagos[$j]['amortizacion'],2);?></td>
+	<td class='grey-text text-darken-2'><?= $jsonPagos[$j]['interes'];?></td>
+	<td class='grey-text text-darken-2'><?= $jsonPagos[$j]['seg1'];?></td>
+	<td class='grey-text text-darken-2'><?= $jsonPagos[$j]['segDef'];?></td>
+	<td class='grey-text text-darken-2'><?= $jsonPagos[$j]['cuotaSinItf'];?></td>
+	<td class='grey-text text-darken-2'><?= $jsonPagos[$j]['conItf'];?></td>
+	<td class='grey-text text-darken-2'><?= number_format($jsonPagos[$j]['totalCuota'],2);?></td>
+
+	<?php
+	}
+	
+	print_r(	$jsonPagos ); //$jsonPagos[0]['fPago']
 }
 
 function esFeriado($feriados, $dia){
