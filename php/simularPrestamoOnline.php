@@ -3,26 +3,21 @@ header('Content-Type: text/html; charset=utf8');
 date_default_timezone_set('America/Lima');
 include 'conkarl.php';
 
-$sql="INSERT INTO `prestamo`(`idPrestamo`, `presFechaAutom`, `presFechaDesembolso`, `presMontoDesembolso`, `idTipoPrestamo`, `presActivo`, `idUsuario`) VALUES (null, now(), {$_POST['fDesembolso']}, {$_POST['monto']}, {$_POST['modo']}, 1, {$_COOKIE['ckidUsuario']});";
+/* $idCliente='';
+$log = mysqli_query($conection,"SELECT idCliente from Cliente where cliDNI ='".$_POST['jCliente'][0]['dniCli']."';");
+$row = mysqli_fetch_array($log, MYSQLI_ASSOC);
 
-if($conection->query($sql)){
-	//$row = mysqli_fetch_array($log, MYSQLI_ASSOC);
-	$idPrestamo = $conection->insert_id;
-	
+// Primero creamos o verificamos si el cliente ya se encuentra en las BD;
+if( count($row)===1 ){
+	$idCliente=$row['idCliente'];
 }else{
-	echo "hubo un error";
-}
-
-
-$clientes=$_POST['clientes'];
-$sqlClie='';
-foreach ($clientes as $cliente ) {
-	$sqlClie=$sqlClie . "INSERT INTO `involucrados`(`idPrestamo`, `idCliente`, `idTipoCliente`)
-	VALUES ($idPrestamo, {$cliente['id']}, {$cliente['grado']});";
-}
-$esclavo->multi_query($sqlClie);
-
-
+	$newCliente= "INSERT INTO `cliente`(`idCliente`, `cliApellidos`, `cliNombres`, `cliDni`, `cliDireccion`, `cliCorreo`, `cliCelular`, `cliFijo`, `cliCalificacion`) VALUES (null,'".$_POST['jCliente'][0]['apellidosCli']."','".$_POST['jCliente'][0]['nombreCli']."','".$_POST['jCliente'][0]['dniCli']."','".$_POST['jCliente'][0]['direccionCli']."','".$_POST['jCliente'][0]['correoCli']."','".$_POST['jCliente'][0]['celularCli']."','".$_POST['jCliente'][0]['cotroCelularCli']."',0)";
+	$conection->query($newCliente);
+	
+	$log2 = mysqli_query($conection,"SELECT idCliente from Cliente where cliDNI ='".$_POST['jCliente'][0]['dniCli']."';");
+	$row2 = mysqli_fetch_array($log2, MYSQLI_ASSOC);
+	$idCliente=$row2['idCliente'];
+} */
 
 $fecha = new DateTime($_POST['fDesembolso']);
 
@@ -31,9 +26,9 @@ $monto = $_POST['monto'];
 $plazo = $_POST['periodo'];
 $saldo = $_POST['monto'];
 $saltoDia = new DateInterval('P1D'); //aumenta 1 día
-$sqlCuotas='';
 
 //Para saber si es sábado(6) o domingo(0):  format('w') 
+
 
 $lista1= '[{
 	"numDia": 0,
@@ -46,12 +41,12 @@ $lista1= '[{
 	"saldoReal": 0
 	}]';
 $jsonSimple= json_decode($lista1, true);
+	
 
 switch ($_POST['modo']){
 	case "1": //DIARIO
 		$interes = 0.0066;
 		$cuota = round(($monto*$interes)/(1-pow((1+$interes),-$plazo)),1, PHP_ROUND_HALF_UP);
-		
 		$intervalo = new DateInterval('P1D'); //aumenta 1 día
 		break;
 	case "2": //SEMANAL
@@ -72,7 +67,7 @@ switch ($_POST['modo']){
 		$tem= pow((1+ $tea), 1/12)-1;
 		$tEfecDiaria= pow(1+$tem, 1/30)-1;
 		$tSegDiario= round($tseg/30,8);
-		$fechaPago=new DateTime('2018-11-01');
+		$fechaPago=new DateTime($_POST['primerPago']);
 
 		$lista= '[{
 			"numDia": 0,
@@ -90,7 +85,7 @@ switch ($_POST['modo']){
 			"totalCuota": 0
 		}]';
 		
-		$intervalo = new DateInterval('P30D'); //aumenta 1 día
+		$intervalo = new DateInterval('P30D'); //aumenta 30 día
 		$jsonPagos= json_decode($lista, true);
 		
 		//print_r($jsonPagos[0]['fPago']);
@@ -98,20 +93,27 @@ switch ($_POST['modo']){
 		
 		break;
 	default:
+	?> <tr><td>Datos inválidos</td></tr><?php
 	break;
 }
+
+/* ?> 
+<tr><td class='grey-text text-darken-2'><strong>0</strong></td> <td><?= $fecha->format('d/m/Y'); ?></td> <td>-</td><td>-</td> <td>-</td> <td><?= number_format($saldo,2);?></td></tr><?php */
 
 if($_POST['modo']!=3){
 	$interesSumado=0;
 	$fecha->add($intervalo);
 	//$cuota = round($monto*$interes/$plazo,2);
 	for ($i=0; $i < $plazo ; $i++) {
-	
+/* 	?> <tr><?php */
 		
 		$razon = esFeriado($feriados, $fecha->format('Y-m-d'));
 		if($razon!=false ){
 			//echo "si es feriado";
 			//echo "Feriado ".": ". $fecha->format('d/m/Y'). "<br>";
+			/* ?>
+			<td class='grey-text text-darken-2'>-</td> <td class='grey-text text-darken-2'><?= $fecha->format('d/m/Y'); ?></td> <td class='grey-text text-darken-2'><?= $razon; ?></td> <td></td> <td></td> <td></td>
+			<?php */
 			$i--;
 			$jsonSimple[]=array(
 				"numDia"=>'-',
@@ -130,6 +132,9 @@ if($_POST['modo']!=3){
 				//No hacer nada
 				//echo "\nDomingo ".": ". $fecha->format('d/m/Y'). "<br>\n";
 				$i--;
+				/* ?>
+				<td class='grey-text text-darken-2'>-</td> <td class='grey-text text-darken-2'><?= $fecha->format('d/m/Y'); ?></td> <td class='grey-text text-darken-2'>Domingo</td> <td></td> <td></td> <td></td>
+				<?php */
 				$jsonSimple[]=array(
 					"numDia"=>'-',
 					"fPago" => $fecha->format('Y-m-d'),
@@ -152,6 +157,9 @@ if($_POST['modo']!=3){
 				$saldo = $saldo -$amortizacion;
 				$interesSumado+=$interesVariable;
 
+				//echo "Día #".($i+1).": ". $fecha->format('d/m/Y') . "<br>";
+				/* ?><td class='grey-text text-darken-2'><strong><?= $i+1; ?></strong></td> <td class='grey-text text-darken-2'><?= $fecha->format('d/m/Y'); ?></td> <td class='grey-text text-darken-2'>S/ <?= number_format($cuota, 2); ?></td> <td class='grey-text text-darken-2'><?= number_format($interesVariable,2); ?></td> <td class='grey-text text-darken-2'><?= number_format($amortizacion,2); ?></td> <td class='grey-text text-darken-2'><?= number_format($saldo, 2);?></td> <?php */
+
 				$jsonSimple[]=array(
 					"numDia"=>$i+1,
 					"fPago" => $fecha->format('Y-m-d'),
@@ -162,44 +170,42 @@ if($_POST['modo']!=3){
 					"saldo" => $saldo,
 					"saldoReal"=> 0
 				);
-				//echo "Día #".($i+1).": ". $fecha->format('d/m/Y') . "<br>";
 				$fecha->add($intervalo);
-				//echo $sql;
-				
-				//unset($conection);
-				
-			
 			}
 		}
-	
+	/* ?></tr><?php */
 	}
-	//echo $sqlCuotas;
 	
-
-
 	$jsonSimple[0]['saldoReal'] = $monto+$interesSumado;
 	$dia=1;
-	for ($j=0; $j <  count($jsonSimple) ; $j++) {
+	for ($j=0; $j <  count($jsonSimple) ; $j++) { ?><tr><?php
 		
 		$nueva= new DateTime ($jsonSimple[$j]['fPago']);
 
 		if($jsonSimple[$j]['razon']==='Desembolso'){
-			$sqlCuotas=$sqlCuotas."INSERT INTO `prestamo_cuotas`(`idCuota`, `idPrestamo`, `cuotFechaPago`, `cuotCuota`, `cuotFechaCancelacion`, `cuotPago`, `cuotSaldo`, `cuotVo`, `cuotObservaciones`,`idTipoPrestamo`) VALUES (null,$idPrestamo,'{$nueva->format('Y-m-d')}',0,'',0,{$jsonSimple[$j]['saldoReal']},'','', 43);";
+			?> <td class='grey-text text-darken-2'>-</td> <td class='grey-text text-darken-2'><?= $nueva->format('d/m/Y'); ?></td> <td class='grey-text text-darken-2'>Desembolso</td> <td></td> <td></td> <td></td> <td><?= $jsonSimple[$j]['saldoReal'];?></td>
+			<?php
 		}else if($jsonSimple[$j]['razon']==='Domingo'){ $dia++;
+			?> <td class='grey-text text-darken-2'>-</td> <td class='grey-text text-darken-2'><?= $nueva->format('d/m/Y'); ?></td> <td class='grey-text text-darken-2'>Domingo</td> <td></td> <td></td> <td></td> <td></td>
+			<?php
 		}else if($jsonSimple[$j]['razon']==='Feriado'){ $dia++;
+			?> <td class='grey-text text-darken-2'>-</td> <td class='grey-text text-darken-2'><?= $nueva->format('d/m/Y'); ?></td> <td class='grey-text text-darken-2'><?= $jsonSimple[$j]['cuota'];?> </td> <td></td> <td></td> <td></td> <td></td>
+			<?php
 		}else{
 			if($j>=1){
 				$jsonSimple[$j]['saldoReal'] = $jsonSimple[$j-$dia]['saldoReal']-$jsonSimple[$j]['cuota']; $dia=1;
 			}
-			$sqlCuotas=$sqlCuotas."INSERT INTO `prestamo_cuotas`(`idCuota`, `idPrestamo`, `cuotFechaPago`, `cuotCuota`, `cuotFechaCancelacion`, `cuotPago`, `cuotSaldo`, `cuotVo`, `cuotObservaciones`,`idTipoPrestamo`) VALUES (null,$idPrestamo,'{$nueva->format('Y-m-d')}',{$jsonSimple[$j]['cuota']},'',0,{$jsonSimple[$j]['saldoReal']},'','', 79);";
+
+			?><td class='grey-text text-darken-2'><strong><?= $jsonSimple[$j]['numDia']; ?></strong></td> <td class='grey-text text-darken-2'><?= $nueva->format('d/m/Y'); ?></td> <td class='grey-text text-darken-2'>S/ <?= number_format($jsonSimple[$j]['cuota'], 2); ?></td> <td class='grey-text text-darken-2'><?= number_format($jsonSimple[$j]['interes'],2); ?></td> <td class='grey-text text-darken-2'><?= number_format($jsonSimple[$j]['amortizacion'],2); ?></td> <td class='grey-text text-darken-2'><?= number_format($jsonSimple[$j]['saldo'], 2);?></td> <td><?= number_format($jsonSimple[$j]['saldoReal'], 2);?></td> <?php
 		}
-	
+	?></tr><?php
 	}
 	
-	$cadena->multi_query($sqlCuotas);
 }//fin de if modo=3
 else{
-	echo "\n";
+	?><tr class="grey-text text-darken-2">
+		<td><strong>0</strong></td> <td><?php $fff= new DateTime($jsonPagos[0]['fPago']); echo $fff->format('d/m/Y'); ?></td> <td></td> <td></td> <td></td> <td><?= number_format($jsonPagos[0]['sk'],2);?></td> <td></td> <td></td> <td></td> <td></td><td></td> <td></td><td></td> 
+	</tr><?php
 	$sumaDias=0; $sumaFrc=0;
 	for ($i=0; $i < $plazo ; $i++) {
 		
@@ -224,6 +230,8 @@ else{
 			"conItf" => 0,
 			"totalCuota" => 0
 		);
+		$diffe = $fechaPago->format('t');
+		$intervalo = new DateInterval('P'.$diffe.'D');
 		$fechaPago->add($intervalo);
 	}
 	$sumaSeg=0;
@@ -245,15 +253,26 @@ else{
 		$jsonPagos[$j]['cuotaSinItf'] = $jsonPagos[$j]['amortizacion']+$jsonPagos[$j]['interes']+$jsonPagos[$j]['segDef'];
 		$jsonPagos[$j]['conItf']= $jsonPagos[$j]['cuotaSinItf']*$itf;
 		$jsonPagos[$j]['totalCuota']=round($jsonPagos[$j]['cuotaSinItf'] +$jsonPagos[$j]['conItf'],2);
+		?>
+	<tr>
+	<td class='grey-text text-darken-2'><strong><?= $j; ?></strong></td>
+	<td class='grey-text text-darken-2'><?php $fechaDispl= strtotime($jsonPagos[$j]['fPago']); echo date('d/m/Y',$fechaDispl); ?></td>
+	<td class='grey-text text-darken-2'><?= $jsonPagos[$j]['dias']; ?></td>
+	<td class='grey-text text-darken-2'><?= $jsonPagos[$j]['diasAcum'];?></td>
+	<td class='grey-text text-darken-2'><?= $jsonPagos[$j]['frc'];?></td>
+	<td class='grey-text text-darken-2'><?= $jsonPagos[$j]['sk'];?></td>
+	<td class='grey-text text-darken-2'><?= number_format($jsonPagos[$j]['amortizacion'],2);?></td>
+	<td class='grey-text text-darken-2'><?= $jsonPagos[$j]['interes'];?></td>
+	<td class='grey-text text-darken-2'><?= $jsonPagos[$j]['seg1'];?></td>
+	<td class='grey-text text-darken-2'><?= $jsonPagos[$j]['segDef'];?></td>
+	<td class='grey-text text-darken-2'><?= $jsonPagos[$j]['cuotaSinItf'];?></td>
+	<td class='grey-text text-darken-2'><?= $jsonPagos[$j]['conItf'];?></td>
+	<td class='grey-text text-darken-2'><?= number_format($jsonPagos[$j]['totalCuota'],2);?></td>
 
-		$fechaDispl= strtotime($jsonPagos[$j]['fPago']); $fPagar= date('Y-m-d',$fechaDispl);
-
-		$sqlCuotas=$sqlCuotas."INSERT INTO `prestamo_cuotas`(`idCuota`, `idPrestamo`, `cuotFechaPago`, `cuotCuota`, `cuotFechaCancelacion`, `cuotPago`, `cuotAmortizacion`, `cuotInteres`, `cuotSeg`, `cuotItf`, `cuotTotal`, `cuotObservaciones`) VALUES (null,$idPrestamo,'{$fPagar}',{$jsonPagos[$j]['sk']},'',0,{$jsonPagos[$j]['amortizacion']},{$jsonPagos[$j]['interes']},{$jsonPagos[$j]['segDef']},{$jsonPagos[$j]['conItf']},{$jsonPagos[$j]['totalCuota']},'');";
-
+	<?php
 	}
 	
-	//echo $sqlCuotas;
-	$cadena->multi_query($sqlCuotas);
+	print_r(	$jsonPagos ); //$jsonPagos[0]['fPago']
 }
 
 function esFeriado($feriados, $dia){
@@ -264,7 +283,5 @@ function esFeriado($feriados, $dia){
 	}
 	return false;
 }
-
-echo $idPrestamo;
 
 ?>

@@ -1,5 +1,5 @@
 <!-- Modal para decir que hubo un error  -->
-<div class="modal fade modal-GuardadoCorrecto" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+<div class="modal fade" id="modalGuardadoCorrecto" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
 <div class="modal-dialog modal-sm" role="document">
 	<div class="modal-content">
 		<div class="modal-header-primary">
@@ -10,7 +10,7 @@
 			<div class="container-fluid">
 			<div class="row">
 			<img src="images/path4585.png?ver=1.1" class="img-responsive" alt=""><br>
-			<p class="text-center blue-text text-darken-1"><strong>Tu información fue guardada:</strong></p>
+			<p class="text-center blue-text text-darken-1"><em>Información guardada</em></p>
 			<p class="text-center blue-text text-darken-1"><span id="spanBien"></span><h1 class="text-center blue-text text-darken-1" id="h1Bien"></h1></p>
 			</div>
 		</div>

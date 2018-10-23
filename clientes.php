@@ -187,7 +187,8 @@ $('#btnGuardarClienteNew').click(function() {
 
 		casa: casa}}).done(function(resp) { console.log(resp)
 			if( parseInt(resp)>0 ){
-				location.reload();
+				//location.reload();
+				window.location.href = 'clientes.php?buscar='+resp;
 			}
 	});
 });

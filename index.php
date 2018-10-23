@@ -119,7 +119,7 @@ $('#btnAcceder').click(function() {
 		type:'POST',
 		url: 'php/validarSesion.php',
 		data: {user: $('#txtUser_app').val(), pws: $('#txtPassw').val()},
-		success: function(iduser) {
+		success: function(iduser) { console.log(iduser)
 			if (parseInt(iduser)>0){//console.log('el id es '+data)
 				//console.log(iduser)
 				window.location="principal.php";

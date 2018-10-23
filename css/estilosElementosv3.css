@@ -16,7 +16,8 @@ main, .contenedorDeslizable{background-color: #fff; border-radius:0.5rem; margin
 .btn-circle-mediano{width: 60px; height: 60px; text-align: center; padding: 6px 0; font-size: 24px; line-height: 1.42; border-radius: 60px;}
 .btn-circle:hover,.btn-circle-grande:hover{box-shadow:0 5px 5px 0 rgba(0,0,0,0.18),0 5px 5px 0 rgba(0,0,0,0.15);}
 .btn-circle-grande{width: 80px; height: 80px; text-align: center; padding: 16px 0; font-size: 36px; line-height: 1.42; border-radius: 65px; }
-a{text-decoration: none;display: inline-block;}
+a{text-decoration: none;display: inline-block; color: #4161dc;}
+a:hover{color: #170479;}
 .panel-negro { border-color: #434A54;}
 .panel-negro > .panel-heading {color: #fff; background-color: #434A54; border-color: #434A54;}
 .panel-negro > .panel-heading + .panel-collapse > .panel-body {border-top-color: #bce8f1;}
