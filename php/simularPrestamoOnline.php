@@ -183,20 +183,20 @@ if($_POST['modo']!=3){
 		$nueva= new DateTime ($jsonSimple[$j]['fPago']);
 
 		if($jsonSimple[$j]['razon']==='Desembolso'){
-			?> <td class='grey-text text-darken-2'>-</td> <td class='grey-text text-darken-2'><?= $nueva->format('d/m/Y'); ?></td> <td class='grey-text text-darken-2'>Desembolso</td> <td></td> <td></td> <td></td> <td><?= $jsonSimple[$j]['saldoReal'];?></td>
+			?> <td class='grey-text text-darken-2'>-</td> <td class='grey-text text-darken-2'><?= $nueva->format('d/m/Y'); ?></td> <td class='grey-text text-darken-2'>Desembolso</td>  <td><?= number_format($jsonSimple[$j]['saldoReal'],2);?></td>
 			<?php
 		}else if($jsonSimple[$j]['razon']==='Domingo'){ $dia++;
-			?> <td class='grey-text text-darken-2'>-</td> <td class='grey-text text-darken-2'><?= $nueva->format('d/m/Y'); ?></td> <td class='grey-text text-darken-2'>Domingo</td> <td></td> <td></td> <td></td> <td></td>
+			?> <td class='grey-text text-darken-2'>-</td> <td class='grey-text text-darken-2'><?= $nueva->format('d/m/Y'); ?></td> <td class='grey-text text-darken-2'>Domingo</td> <td></td>  
 			<?php
 		}else if($jsonSimple[$j]['razon']==='Feriado'){ $dia++;
-			?> <td class='grey-text text-darken-2'>-</td> <td class='grey-text text-darken-2'><?= $nueva->format('d/m/Y'); ?></td> <td class='grey-text text-darken-2'><?= $jsonSimple[$j]['cuota'];?> </td> <td></td> <td></td> <td></td> <td></td>
+			?> <td class='grey-text text-darken-2'>-</td> <td class='grey-text text-darken-2'><?= $nueva->format('d/m/Y'); ?></td> <td class='grey-text text-darken-2'><?= $jsonSimple[$j]['cuota'];?> </td>  <td></td>
 			<?php
 		}else{
 			if($j>=1){
 				$jsonSimple[$j]['saldoReal'] = $jsonSimple[$j-$dia]['saldoReal']-$jsonSimple[$j]['cuota']; $dia=1;
 			}
 
-			?><td class='grey-text text-darken-2'><strong><?= $jsonSimple[$j]['numDia']; ?></strong></td> <td class='grey-text text-darken-2'><?= $nueva->format('d/m/Y'); ?></td> <td class='grey-text text-darken-2'>S/ <?= number_format($jsonSimple[$j]['cuota'], 2); ?></td> <td class='grey-text text-darken-2'><?= number_format($jsonSimple[$j]['interes'],2); ?></td> <td class='grey-text text-darken-2'><?= number_format($jsonSimple[$j]['amortizacion'],2); ?></td> <td class='grey-text text-darken-2'><?= number_format($jsonSimple[$j]['saldo'], 2);?></td> <td><?= number_format($jsonSimple[$j]['saldoReal'], 2);?></td> <?php
+			?><td class='grey-text text-darken-2'><strong><?= $jsonSimple[$j]['numDia']; ?></strong></td> <td class='grey-text text-darken-2'><?= $nueva->format('d/m/Y'); ?></td> <td class='grey-text text-darken-2'>S/ <?= number_format($jsonSimple[$j]['cuota'], 2); ?></td> <td class='grey-text text-darken-2 hidden'><?= number_format($jsonSimple[$j]['interes'],2); ?></td> <td class='grey-text text-darken-2 hidden'><?= number_format($jsonSimple[$j]['amortizacion'],2); ?></td> <td class='grey-text text-darken-2 hidden'><?= number_format($jsonSimple[$j]['saldo'], 2);?></td> <td><?= number_format($jsonSimple[$j]['saldoReal'], 2);?></td> <?php
 		}
 	?></tr><?php
 	}
@@ -204,7 +204,7 @@ if($_POST['modo']!=3){
 }//fin de if modo=3
 else{
 	?><tr class="grey-text text-darken-2">
-		<td><strong>0</strong></td> <td><?php $fff= new DateTime($jsonPagos[0]['fPago']); echo $fff->format('d/m/Y'); ?></td> <td></td> <td></td> <td></td> <td><?= number_format($jsonPagos[0]['sk'],2);?></td> <td></td> <td></td> <td></td> <td></td><td></td> <td></td><td></td> 
+		<td><strong>0</strong></td> <td><?php $fff= new DateTime($jsonPagos[0]['fPago']); echo $fff->format('d/m/Y'); ?></td> <td><?= number_format($jsonPagos[0]['sk'],2);?></td> <td></td> <td></td> <td></td> <td></td><td></td> 
 	</tr><?php
 	$sumaDias=0; $sumaFrc=0;
 	for ($i=0; $i < $plazo ; $i++) {
@@ -257,15 +257,15 @@ else{
 	<tr>
 	<td class='grey-text text-darken-2'><strong><?= $j; ?></strong></td>
 	<td class='grey-text text-darken-2'><?php $fechaDispl= strtotime($jsonPagos[$j]['fPago']); echo date('d/m/Y',$fechaDispl); ?></td>
-	<td class='grey-text text-darken-2'><?= $jsonPagos[$j]['dias']; ?></td>
-	<td class='grey-text text-darken-2'><?= $jsonPagos[$j]['diasAcum'];?></td>
-	<td class='grey-text text-darken-2'><?= $jsonPagos[$j]['frc'];?></td>
+	<td class='grey-text text-darken-2 hidden'><?= $jsonPagos[$j]['dias']; ?></td>
+	<td class='grey-text text-darken-2 hidden'><?= $jsonPagos[$j]['diasAcum'];?></td>
+	<td class='grey-text text-darken-2 hidden'><?= $jsonPagos[$j]['frc'];?></td>
 	<td class='grey-text text-darken-2'><?= $jsonPagos[$j]['sk'];?></td>
 	<td class='grey-text text-darken-2'><?= number_format($jsonPagos[$j]['amortizacion'],2);?></td>
 	<td class='grey-text text-darken-2'><?= $jsonPagos[$j]['interes'];?></td>
-	<td class='grey-text text-darken-2'><?= $jsonPagos[$j]['seg1'];?></td>
+	<td class='grey-text text-darken-2 hidden'><?= $jsonPagos[$j]['seg1'];?></td>
 	<td class='grey-text text-darken-2'><?= $jsonPagos[$j]['segDef'];?></td>
-	<td class='grey-text text-darken-2'><?= $jsonPagos[$j]['cuotaSinItf'];?></td>
+	<td class='grey-text text-darken-2 hidden'><?= $jsonPagos[$j]['cuotaSinItf'];?></td>
 	<td class='grey-text text-darken-2'><?= $jsonPagos[$j]['conItf'];?></td>
 	<td class='grey-text text-darken-2'><?= number_format($jsonPagos[$j]['totalCuota'],2);?></td>
 

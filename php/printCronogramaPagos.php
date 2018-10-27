@@ -86,7 +86,30 @@ if($llamado= $conection->query($sql)){
             
               break;
             case '3':
-              echo 'aparte';
+            $i=0;
+            $sql2 = "SELECT * FROM `prestamo_cuotas` WHERE `idPrestamo` = {$_GET['prestamo']}";
+              ?> 
+              <thead><tr><th>N°</th> <th>F. Pago</th> <th>Saldo de capital</th> <th>Amotización</th> <th>Interés</th> <th>SEG</th> <th>ITF</th> <th>Total Cuota</th> </tr></thead>
+              <tbody>
+              <?php 
+              if($llamado2 = $cadena->query($sql2)){
+              $totalRows = $llamado2->num_rows;
+              while($respuesta2 = $llamado2->fetch_assoc()){ ?>
+                <tr>
+                  <td><?= $i; ?></td>
+                  <td><?php $fecha = new DateTime($respuesta2['cuotFechaPago']); echo $fecha->format('d/m/Y');?></td>
+                  <td><?= number_format(round($respuesta2['cuotCuota'], 1, PHP_ROUND_HALF_UP),2);?></td>
+                  <td><?= number_format(round($respuesta2['cuotAmortizacion'], 1, PHP_ROUND_HALF_UP),2);?></td>
+                  <td><?= number_format(round($respuesta2['cuotInteres'], 1, PHP_ROUND_HALF_UP),2);?></td>
+                  <td><?= number_format(round($respuesta2['cuotSeg'], 1, PHP_ROUND_HALF_UP),2);?></td>
+                  <td><?= number_format(round($respuesta2['cuotItf'], 1, PHP_ROUND_HALF_UP),2);?></td>
+                  <td><?= number_format(round($respuesta2['cuotTotal'], 1, PHP_ROUND_HALF_UP),2);?></td>
+                </tr>
+              <?php 
+                $i++;
+                }
+              } ?>
+              </tbody> <?php
             default:
               # code...
               break;

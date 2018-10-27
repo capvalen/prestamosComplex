@@ -7,7 +7,7 @@ function verificarMatri($soltero, $cadena){
 //  echo $linea;
 
   //$filas=array();
-  //$i=0;
+  //$contar=0;
 
   if ($sql = $cadena->query($linea)) { //Ejecución mas compleja con retorno de dato de sql del procedure.
     /* obtener el array de objetos */

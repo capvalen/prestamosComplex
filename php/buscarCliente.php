@@ -11,17 +11,18 @@ if($cantRow>0){
   while($row = mysqli_fetch_array($log, MYSQLI_ASSOC)){
     $respuesta= json_encode(verificarMatri($row['idCliente'], $cadena), true);
     
-    if($respuesta==0){
+    if($respuesta==0 && $row['idEstadoCivil']==2 ){
       if($row['idEstadoCivil']=='2' && $row['cliSexo']=='1' ){
         $botonMatri='<button class="btn btn-sm btn-rojoFresa btn-outline btnLlamarEsposo" data-id="'.$row['idCliente'].'" data-sex="'.$row['cliSexo'].'"><i class="icofont-heart-alt"></i> Asociar esposa</button>';
       }
       if($row['idEstadoCivil']=='2' && $row['cliSexo']=='0' ){
         $botonMatri='<button class="btn btn-sm btn-rojoFresa btn-outline btnLlamarEsposo" data-id="'.$row['idCliente'].'" data-sex="'.$row['cliSexo'].'"><i class="icofont-heart-alt"></i> Asociar esposo</button>';
       }
+    }else{
+      $botonMatri='<a class="btn btn-sm btn-azul btn-outline btnAsignarSocio" href="creditos.php?titular='.$row["idCliente"].'"><i class="icofont-ui-add"></i> Crear solicitud</a>';
     }
   
   ?>
-    
     <tr>
       <td><?= $row['idCliente']; ?></td>
       <td><?= $row['cliDni']; ?></td>
@@ -29,7 +30,7 @@ if($cantRow>0){
       <td><?= ucwords($row['addrDireccion']); ?></td>
       <td><?= $row['cliCelularPersonal']; ?></td>
       <td><?= $row['civDescripcion']; ?></td>
-      <td> <a class="btn btn-sm btn-azul btn-outline btnAsignarSocio" href="creditos.php?titular=<?= $row['idCliente'];?>"><i class="icofont-ui-add"></i> Crear solicitud</a> <?php echo $botonMatri;?> </td>
+      <td> <?php echo $botonMatri;?> </td>
     </tr>
   <?php
     

@@ -239,16 +239,17 @@ else{
 	//	print_r(	$jsonPagos[$i] );
 	}
 	
-	for ($j=1; $j <= $plazo ; $j++) { 
-		$jsonPagos[$j]['seg1']=  round($jsonPagos[$j-1]['sk']*$jsonPagos[$j]['dias']*$tSegDiario,2);
-		$jsonPagos[$j]['segDef']=round($sumaSeg/$plazo,2);
-		$jsonPagos[$j]['cuotaSinItf'] = $jsonPagos[$j]['amortizacion']+$jsonPagos[$j]['interes']+$jsonPagos[$j]['segDef'];
-		$jsonPagos[$j]['conItf']= $jsonPagos[$j]['cuotaSinItf']*$itf;
-		$jsonPagos[$j]['totalCuota']=round($jsonPagos[$j]['cuotaSinItf'] +$jsonPagos[$j]['conItf'],2);
-
+	for ($j=0; $j < count($jsonPagos) ; $j++) { 
+		if($j>=1){
+			$jsonPagos[$j]['seg1']=  round($jsonPagos[$j-1]['sk']*$jsonPagos[$j]['dias']*$tSegDiario,2);
+			$jsonPagos[$j]['segDef']=round($sumaSeg/$plazo,2);
+			$jsonPagos[$j]['cuotaSinItf'] = $jsonPagos[$j]['amortizacion']+$jsonPagos[$j]['interes']+$jsonPagos[$j]['segDef'];
+			$jsonPagos[$j]['conItf']= $jsonPagos[$j]['cuotaSinItf']*$itf;
+			$jsonPagos[$j]['totalCuota']=round($jsonPagos[$j]['cuotaSinItf'] +$jsonPagos[$j]['conItf'],2);	
+		}
 		$fechaDispl= strtotime($jsonPagos[$j]['fPago']); $fPagar= date('Y-m-d',$fechaDispl);
 
-		$sqlCuotas=$sqlCuotas."INSERT INTO `prestamo_cuotas`(`idCuota`, `idPrestamo`, `cuotFechaPago`, `cuotCuota`, `cuotFechaCancelacion`, `cuotPago`, `cuotAmortizacion`, `cuotInteres`, `cuotSeg`, `cuotItf`, `cuotTotal`, `cuotObservaciones`) VALUES (null,$idPrestamo,'{$fPagar}',{$jsonPagos[$j]['sk']},'',0,{$jsonPagos[$j]['amortizacion']},{$jsonPagos[$j]['interes']},{$jsonPagos[$j]['segDef']},{$jsonPagos[$j]['conItf']},{$jsonPagos[$j]['totalCuota']},'');";
+		$sqlCuotas=$sqlCuotas."INSERT INTO `prestamo_cuotas`(`idCuota`, `idPrestamo`, `cuotFechaPago`, `cuotCuota`, `cuotFechaCancelacion`, `cuotPago`, `cuotAmortizacion`, `cuotInteres`, `cuotSeg`, `cuotItf`, `cuotTotal`, `cuotObservaciones`,`idTipoPrestamo`) VALUES (null,$idPrestamo,'{$fPagar}',{$jsonPagos[$j]['sk']},'',0,{$jsonPagos[$j]['amortizacion']},{$jsonPagos[$j]['interes']},{$jsonPagos[$j]['segDef']},{$jsonPagos[$j]['conItf']},{$jsonPagos[$j]['totalCuota']},'',79);";
 
 	}
 	

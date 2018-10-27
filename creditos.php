@@ -1,6 +1,10 @@
 <?php 
 header('Content-Type: text/html; charset=utf8');
 date_default_timezone_set('America/Lima');
+include 'php/conkarl.php';
+require_once('vendor/autoload.php');
+$base58 = new StephenHill\Base58();
+
  ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -21,7 +25,8 @@ date_default_timezone_set('America/Lima');
 <body>
 
 <style>
-
+#contenedorCreditosFluid, label{font-weight: 500;}
+#contenedorCreditosFluid, p{color: #a35bb4;}
 </style>
 <div id="wrapper">
 	<!-- Sidebar -->
@@ -33,7 +38,79 @@ date_default_timezone_set('America/Lima');
 		<div class="row noselect">
 			<div class="col-lg-12 contenedorDeslizable ">
 			<!-- Empieza a meter contenido principal -->
-			<h2 class="purple-text text-lighten-1">Crear solicitud de préstamo <small><?php print $_COOKIE["ckAtiende"]; ?></small></h2><hr>
+		<?php if( isset($_GET['credito']) ):
+			$codCredito=$base58->decode($_GET['credito']); ?>
+
+		<h3 class="purple-text text-lighten-1">Crédito CR-<?= $codCredito; ?></h3>
+
+	<?php
+	$sqlCr="SELECT presFechaAutom, presMontoDesembolso, tpr.tpreDescipcion,
+	u.usuNombres,
+	case presFechaDesembolso when '0000-00-00 00:00:00' then 'Desembolso pendiente' else presFechaDesembolso end as `presFechaDesembolso`,
+	case presAprobado when 0 then 'Sin aprobar' else 'Aprobado' end as `presAprobado`, 
+	case when ua.usuNombres is Null then '-' else ua.usuNombres end  as `usuarioAprobador`
+	FROM `prestamo` pre
+	inner join usuario u on u.idUsuario = pre.idUsuario
+	left join usuario ua on ua.idUsuario = pre.idUsuarioAprobador
+	inner join tipoprestamo tpr on tpr.idTipoPrestamo = pre.idTipoPrestamo
+	where pre.idPrestamo='{$codCredito}'"; ?>
+		<!-- <table class="table table-hover">
+		<thead>
+			<tr>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+		</tbody> -->
+		<?php if( $respuesta = $conection->query($sqlCr)){
+			$rowCr = $respuesta->fetch_assoc(); ?>
+		<div class="container-fluid" id="contenedorCreditosFluid">
+			<p><strong>Datos de crédito</strong></p>
+			<div class="row">
+				<div class="col-sm-2"><label for="">Verificación</label><p><?= $rowCr['presAprobado']; ?></p></div>
+				<div class="col-sm-2"><label for="">Verificador</label><p><?= $rowCr['usuarioAprobador']; ?></p></div>
+			</div>
+			<div class="row">
+				<div class="col-sm-2"><label for="">Fecha préstamo</label><p><?php $fechaAut= new DateTime($rowCr['presFechaAutom']); echo $fechaAut->format('j/m/Y H:m a'); ?></p></div>
+				<div class="col-sm-2"><label for="">Fecha desemboslo</label><p><?php if($rowCr['presFechaDesembolso']=='Desembolso pendiente'){echo $rowCr['presFechaDesembolso'];}else{$fechaDes= new DateTime($rowCr['presFechaDesembolso']); echo $fechaDes->format('j/m/Y H:m a');} ?></p></div>
+				<div class="col-sm-2"><label for="">Desembolso</label><p>S/ <?= number_format($rowCr['presMontoDesembolso'],2); ?></p></div>
+				<div class="col-sm-2"><label for="">Periodo</label><p><?= $rowCr['tpreDescipcion']; ?></p></div>
+				<div class="col-sm-2"><label for="">Analista</label><p><?= $rowCr['usuNombres']; ?></p></div>
+			</div>
+
+			<hr>
+			
+			<p><strong>Clientes asociados a éste préstamo:</strong></p>
+
+			<div class="row">
+				<ul>
+		<?php $sqlInv= "SELECT i.idPrestamo, lower(concat(c.cliApellidoPaterno, ' ', c.cliApellidoMaterno, ', ', c.cliNombres)) as `datosCliente` , tpc.tipcDescripcion FROM `involucrados` i
+				inner join cliente c on i.idCliente = c.idCliente
+				inner join tipocliente tpc on tpc.idTipoCliente = i.idTipoCliente
+				where idPrestamo ='{$codCredito}'";
+
+				if( $respuestaInv=$conection->query($sqlInv) ){
+					while( $rowInv=$respuestaInv->fetch_assoc() ){  ?>
+						<li class="mayuscula"><?= $rowInv['datosCliente']; ?></li>
+					<?php }
+				}
+
+ ?>
+				</ul>
+			</div>
+
+			<hr>
+
+			<p><strong>Cuotas planificadas:</strong></p>
+
+		</div><!-- Fin de contenedorCreditosFluid -->
+			
+
+		<?php } //Fin de if $respuesta ?>
+		<!-- </table> -->
+
+		<?php else: ?>
+		<h3 class="purple-text text-lighten-1">Crear solicitud de préstamo <small><?php print $_COOKIE["ckAtiende"]; ?></small></h3><hr>
 			
 			<div class="panel panel-default">
 				<div class="panel-body">
@@ -49,7 +126,7 @@ date_default_timezone_set('America/Lima');
 				</div>
 			</div>
 
-<?php if(isset( $_GET['titular'])): ?>
+		<?php if(isset( $_GET['titular'])): ?>
 			<div class="panel panel-default">
 				<div class="panel-body">
 					<p><strong>Involucrados</strong></p>
@@ -116,8 +193,8 @@ date_default_timezone_set('America/Lima');
 				</table>
 				</div>
 			</div>
-
-<?php endif; ?>
+		<?php endif; //fin de get titular ?>
+		<?php endif; //fin de get Credito ?>
 				
 			<!-- Fin de contenido principal -->
 			</div>
@@ -254,7 +331,7 @@ $('#btnSimularPagos').click(function() {
 		monto: $('#txtMontoPrinc').val(),
 		fDesembolso: moment($('#dtpFechaIniciov3').val(), 'DD/MM/YYYY').format('YYYY-MM-DD'),
 		primerPago: moment($('#dtpFechaPrimerv3').val(), 'DD/MM/YYYY').format('YYYY-MM-DD')
-		}}).done(function(resp) { console.log(resp)
+		}}).done(function(resp) {// console.log(resp)
 		$('#tbodyResultados').html(resp);
 		$('#tbodyResultados td').last().text('0.00');
 	});
@@ -266,42 +343,42 @@ $('#btnSimularPagos').click(function() {
 			$('#theadResultados').html(`	<th>#</th>
 					<th>Fecha</th>
 					<th>Cuota</th>
-					<th>Interés</th>
-					<th>Amortización</th>
+					<th class="hidden">Interés</th>
+					<th class="hidden">Amortización</th>
 					<th>Saldo</th>
-					<th>Saldo Real</th>`);
+					<th class="hidden">Saldo Real</th>`);
 			break;
 		case "2":
 			$('#divVariables').append(`<p><strong>TES:</strong> <span>1.52%</span></p>`);
 			$('#theadResultados').html(`	<th>#</th>
 					<th>Fecha</th>
 					<th>Cuota</th>
-					<th>Interés</th>
-					<th>Amortización</th>
+					<th class="hidden">Interés</th>
+					<th class="hidden">Amortización</th>
 					<th>Saldo</th>
-					<th>Saldo Real</th>`);
+					<th class="hidden">Saldo Real</th>`);
 			break;
 		case "4":
 			$('#divVariables').append(`<p><strong>TEQ:</strong> <span>2.95%</span></p>`);
 			$('#theadResultados').html(`	<th>#</th>
 					<th>Fecha</th>
 					<th>Cuota</th>
-					<th>Interés</th>
-					<th>Amortización</th>
+					<th class="hidden">Interés</th>
+					<th class="hidden">Amortización</th>
 					<th>Saldo</th>
-					<th>Saldo Real</th>`);
+					<th class="hidden">Saldo Real</th>`);
 			break;
 		case "3":
 			$('#theadResultados').html(`	<th>#</th>
 					<th>Fecha pago</th>
-					<th>Días</th>
-					<th>Días Acum.</th>
-					<th>FRC</th>
-					<th>SK</th>
+					<th class="hidden">Días</th>
+					<th class="hidden">Días Acum.</th>
+					<th class="hidden">FRC</th>
+					<th>Saldo de Capital</th>
 					<th>Amortización</th>
 					<th>Interés</th>
-					<th>Seg 1</th>
-					<th>Seg Def</th>
+					<th class="hidden">Seg 1</th>
+					<th class="hidden">Seg Def</th>
 					<th>Cuota sin ITF</th>
 					<th>ITF</th>
 					<th>Total Cuota</th>`);
@@ -326,8 +403,6 @@ function agregarClienteCanasta(idCl, cargo) {
 			<td><select class="form-control"><?php include 'php/OPTTipoCliente.php';?></select></td>
 			<td>${botonDelete}</td>
 		</tr>`);
-
-	
 
 		if(cargo==1 || cargo==2){
 			$(`[data-cli="${dato[0].idCliente}"]`).find('select').val(cargo).attr('disabled','true');
