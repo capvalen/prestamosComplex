@@ -5,15 +5,8 @@ include 'conkarl.php';
 require_once('../vendor/autoload.php');
 $base58 = new StephenHill\Base58();
 
-$sql="INSERT INTO `prestamo`(`idPrestamo`, `presFechaAutom`, `presFechaDesembolso`, `presPeriodo`, `presMontoDesembolso`, `idTipoPrestamo`, `presActivo`, `idUsuario`) VALUES (null, now(), {$_POST['fDesembolso']}, {$_POST['periodo']}, {$_POST['monto']}, {$_POST['modo']}, 1, {$_COOKIE['ckidUsuario']});";
 
-if($conection->query($sql)){
-	//$row = mysqli_fetch_array($log, MYSQLI_ASSOC);
-	$idPrestamo = $conection->insert_id;
-	
-}else{
-	echo "hubo un error";
-}
+$idPrestamo = $base58->decode($_GET['credito']);
 
 
 $clientes=$_POST['clientes'];

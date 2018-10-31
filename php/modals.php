@@ -175,3 +175,25 @@
 	</div>
 </div>
 </div>
+</div>
+
+<!-- Modal para: VerificarCredito -->
+<?php if(isset($_GET['credito']) && $rowCr['presAprobado']=== 'Sin aprobar'): ?>
+<div class='modal fade' id='modalVerificarCredito' tabindex='-1' role='dialog' aria-hidden='true'>
+	<div class='modal-dialog modal-sm' >
+	<div class='modal-content '>
+		<div class='modal-header-success'>
+			<button type='button' class='close' data-dismiss='modal' aria-label='Close' ><span aria-hidden='true'>&times;</span></button>
+			<h4 class='modal-tittle'> Confirmar verificación</h4>
+		</div>
+		<div class='modal-body'>
+			<p>Está seguro que desea verificar éste Crédito <strong>«CR-<?= $codCredito; ?>»</strong></p>
+		</div>
+		<div class='modal-footer'>
+			<button type='button' class='btn btn-default' data-dismiss='modal'><i class="icofont-close-circled"></i> Cerrar</button>
+			<button type='button' class='btn btn-success btn-outline' id='btnVerificarCredito'><i class="icofont-check-circled"></i> Verificar crédito</button>
+		</div>
+		</div>
+	</div>
+</div>
+<?php endif; ?>

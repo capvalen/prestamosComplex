@@ -27,6 +27,7 @@ $base58 = new StephenHill\Base58();
 <style>
 #contenedorCreditosFluid, label{font-weight: 500;}
 #contenedorCreditosFluid, p{color: #a35bb4;}
+.modal p{color: #333;}
 </style>
 <div id="wrapper">
 	<!-- Sidebar -->
@@ -44,7 +45,7 @@ $base58 = new StephenHill\Base58();
 		<h3 class="purple-text text-lighten-1">Crédito CR-<?= $codCredito; ?></h3>
 
 	<?php
-	$sqlCr="SELECT presFechaAutom, presMontoDesembolso, tpr.tpreDescipcion,
+	$sqlCr="SELECT presFechaAutom, presMontoDesembolso, presPeriodo, tpr.tpreDescipcion,
 	u.usuNombres,
 	case presFechaDesembolso when '0000-00-00 00:00:00' then 'Desembolso pendiente' else presFechaDesembolso end as `presFechaDesembolso`,
 	case presAprobado when 0 then 'Sin aprobar' else 'Aprobado' end as `presAprobado`, 
@@ -63,7 +64,9 @@ $base58 = new StephenHill\Base58();
 		<tbody>
 		</tbody> -->
 		<?php if( $respuesta = $conection->query($sqlCr)){
-			$rowCr = $respuesta->fetch_assoc(); ?>
+			$rowCr = $respuesta->fetch_assoc();
+			$_POST['plazos'] = $rowCr['presPeriodo'];
+			?>
 		<div class="container-fluid" id="contenedorCreditosFluid">
 			<p><strong>Datos de crédito</strong></p>
 			<div class="row">
@@ -92,13 +95,24 @@ $base58 = new StephenHill\Base58();
 				if( $respuestaInv=$conection->query($sqlInv) ){
 					while( $rowInv=$respuestaInv->fetch_assoc() ){  ?>
 						<li class="mayuscula"><?= $rowInv['datosCliente']; ?></li>
-					<?php }
+			<?php }
 				}
-
- ?>
+			?>
 				</ul>
 			</div>
 
+			<hr>
+
+			<div class="container row" id="rowBotonesMaestros">
+				<button class="btn btn-negro btn-outline btn-lg " id="btnImpresionPrevia" data-pre="<?= $_GET['credito'];?>"><i class="icofont-print"></i> Imprimir cronograma</button>
+			<?php if(isset($_GET['credito']) && $rowCr['presAprobado']== 'Sin aprobar'): ?>
+				<button class="btn btn-success btn-outline btn-lg" id="btnShowVerificarCredito"><i class="icofont-check-circled"></i> Verificar crédito</button>
+			<?php endif; ?>
+
+			<?php if(isset($_GET['credito']) && $rowCr['presAprobado']<> 'Sin aprobar'): ?>
+				<button class="btn btn-warning btn-outline btn-lg" id="btnDesembolsar"><i class="icofont-money"></i> Desembolsar</button>				
+			<?php endif; ?>
+			</div>
 			<hr>
 
 			<p><strong>Cuotas planificadas:</strong></p>
@@ -288,25 +302,32 @@ $('#txtAddCliente').keypress(function (e) {
 });
 $('#btnBuscarClientesDni').click(function () {
 	if( $('#txtAddCliente').val()!='' ){
-		$('#rowClientesEncontrados').children().remove();
-		$.ajax({url: 'php/ubicarCliente.php', type: 'POST', data: { buscar: $('#txtAddCliente').val() }}).done(function(resp) {
-			//console.log(resp);
-			var json=JSON.parse(resp);
-			if(json.length==0){
-				$('#rowClientesEncontrados').append(`<tr">
-						<td>No se encontraron coincidencias</td>
-					</tr>`);
-			}else{
-				$.each( JSON.parse(resp) , function(i, dato){
-					$('#rowClientesEncontrados').append(`<tr data-cli="${dato.idCliente}">
-							<td>${dato.cliDni}</td>
-							<td class="mayuscula">${dato.cliApellidoPaterno} ${dato.cliApellidoMaterno} ${dato.cliNombres} </td>
-							<td><button class="btn btn-success btn-sm btn-outline btnSelectCliente" data-id="${dato.idCliente}" ><i class="icofont-ui-add"></i></button></td>
-						</tr>`);				
-				});
-				}
+
+		if( $('#txtAddCliente').val().toUpperCase().indexOf('CR-')==0 ){
+			$.post('php/58encode.php', {texto: $('#txtAddCliente').val().replace('CR-', '') }, function(resp) {
+				window.location.href = 'creditos.php?credito='+resp;
 			});
-		$('#mostrarResultadosClientes').modal('show');
+		}else{
+			$('#rowClientesEncontrados').children().remove();
+			$.ajax({url: 'php/ubicarCliente.php', type: 'POST', data: { buscar: $('#txtAddCliente').val() }}).done(function(resp) {
+				//console.log(resp);
+				var json=JSON.parse(resp);
+				if(json.length==0){
+					$('#rowClientesEncontrados').append(`<tr">
+							<td>No se encontraron coincidencias</td>
+						</tr>`);
+				}else{
+					$.each( JSON.parse(resp) , function(i, dato){
+						$('#rowClientesEncontrados').append(`<tr data-cli="${dato.idCliente}">
+								<td>${dato.cliDni}</td>
+								<td class="mayuscula">${dato.cliApellidoPaterno} ${dato.cliApellidoMaterno} ${dato.cliNombres} </td>
+								<td><button class="btn btn-success btn-sm btn-outline btnSelectCliente" data-id="${dato.idCliente}" ><i class="icofont-ui-add"></i></button></td>
+							</tr>`);				
+					});
+					}
+				});
+			$('#mostrarResultadosClientes').modal('show');
+		}
 	}
 });
 $('#rowClientesEncontrados').on('click','.btnSelectCliente', function() {
@@ -454,14 +475,21 @@ $('#btnGuardarCred').click(function() {
 		}}).done(function(resp) {
 			console.log(resp)
 			if( parseInt(resp)>0 ){
-				$('#spanBien').text('Código de préstamo:')
-				$('#h1Bien').html(`<a href="creditos.php?idCredito=`+resp+`">#`+resp+`</a> <br> <button class="btn btn-default " id="btnImpresionPrevia" data-pre="`+resp+`"><i class="icofont-print"></i> Imprimir</button>`)
-				$('#modalGuardadoCorrecto').modal('show');
+
+				$.post("php/58decode.php", {texto: resp}, function(data){ console.log(data);
+					$('#spanBien').text('Código de préstamo:')
+					$('#h1Bien').html(`<a href="creditos.php?credito=`+resp+`">CR-`+data+`</a> <br> <button class="btn btn-default " id="btnImpresionPrevia" data-pre="`+resp+`"><i class="icofont-print"></i> Imprimir</button>`)
+					$('#modalGuardadoCorrecto').modal('show');
+				});
 			}
 		});
 	}
 });
 $('#h1Bien').on('click', '#btnImpresionPrevia', function(){
+		var dataUrl="php/printCronogramaPagos.php?prestamo="+$(this).attr('data-pre');
+		window.open(dataUrl, '_blank' );
+});
+$('#rowBotonesMaestros').on('click', '#btnImpresionPrevia', function(){
 		var dataUrl="php/printCronogramaPagos.php?prestamo="+$(this).attr('data-pre');
 		window.open(dataUrl, '_blank' );
 });
@@ -475,6 +503,18 @@ $('#sltTipoPrestamo').change(function() {
 $('#dtpFechaIniciov3').change(function() {
 	$('#dtpFechaPrimerv3').bootstrapMaterialDatePicker( 'setMinDate', moment($('#dtpFechaIniciov3').val(), 'DD/MM/YYYY').add(1, 'days') );
 });
+<?php if(isset($_GET['credito']) && $rowCr['presAprobado']=== 'Sin aprobar'): ?>
+$('#btnShowVerificarCredito').click(function() {
+	$('#modalVerificarCredito').modal('show');
+});
+	$('#btnVerificarCredito').click(function() {
+		$.ajax({url: 'php/updateVerificarCredito.php', type: 'POST', data: { credit: '<?= $codCredito; ?>' }}).done(function(resp) { console.log(resp)
+			if(resp==1){
+				location.reload();
+			}
+		});
+	});
+<?php endif; ?>
 </script>
 <?php } ?>
 </body>

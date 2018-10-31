@@ -45,7 +45,4 @@ mysqli_free_result($log);
 /* cerrar la conexi贸n */
 mysqli_close($conection);
 
-
-
-
 ?>

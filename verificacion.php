@@ -62,7 +62,7 @@ $base58 = new StephenHill\Base58();
 			inner join tipoprestamo tpr on tpr.idTipoPrestamo = pre.idTipoPrestamo
 			inner join involucrados i on i.idPrestamo = pre.idPrestamo
 			inner join cliente c on c.idCliente = i.idCliente
-			where presAprobado=0 and presActivo=1 and i.idTipoCliente=1";
+			where presAprobado=0 and presActivo=1 and i.idTipoCliente=1 order by pre.idPrestamo asc";
 			if( $resultado = $conection->query($sql) ){
 				$count=$resultado->num_rows; //Cuenta desde el primero
 				if($count>=1){
@@ -70,7 +70,7 @@ $base58 = new StephenHill\Base58();
 						?>
 						<tr>
 							<td><a href="creditos.php?credito=<?= $base58->encode($row['idPrestamo']); ?>">CR-<?= $row['idPrestamo']; ?></a></td>
-							<td><?php $fechaN = new DateTime($row['presFechaAutom']); echo $fechaN->format('j/m/Y H:m a') ?></td>
+							<td><?php $fechaN = new DateTime($row['presFechaAutom']); echo $fechaN->format('j/m/Y H:m a'); ?></td>
 							<td class="mayuscula"><?= $row['titular']; ?></td>
 							<td><?= str_replace(',', '', number_format($row['presMontoDesembolso'],2)); ?></td>
 							<td><?= $row['tpreDescipcion']; ?></td>

@@ -2,11 +2,14 @@
 header('Content-Type: text/html; charset=utf8');
 date_default_timezone_set('America/Lima');
 include 'conkarl.php';
+require_once('../vendor/autoload.php');
+$base58 = new StephenHill\Base58();
 
 $nomEmpresa = $_COOKIE['cknombreEmpresa'];
+$idPresPost = $base58->decode($_GET['prestamo']);
 
 $sql = "SELECT * FROM `prestamo`
-WHERE idPrestamo = {$_GET['prestamo']}";
+WHERE idPrestamo = {$idPresPost}";
 
 if($llamado= $conection->query($sql)){
   $respuesta = $llamado->fetch_assoc();
@@ -41,7 +44,7 @@ if($llamado= $conection->query($sql)){
       <div class="col-xs-7">
         <p><strong>Cliente:</strong> <span>Carlos Alex Pariona Valencia</span></p>
         <p><strong>DNI:</strong> <span>44475064</span></p>
-        <p><strong>N° Crédito:</strong> <span>1000001</span></p>
+        <p><strong>N° Crédito:</strong> <span>CR-<?= $idPresPost; ?></span></p>
         <p><strong>Dirección de negocio:</strong> <span>Jr. Ciro Alegría 141 Dtpo 501 - Huancayo</span></p>
       </div>
       <div class="col-xs-5">
@@ -63,7 +66,7 @@ if($llamado= $conection->query($sql)){
             <thead><tr><th>N°</th> <th>F. Pago</th> <th>Cuota</th> <th>Cancelación</th> <th>Pago</th> <th>Saldo</th> <th>Vo</th> </tr></thead>
             <tbody> <?php
             $i=0;
-            $sql2 = "SELECT * FROM `prestamo_cuotas` WHERE `idPrestamo` = {$_GET['prestamo']}";
+            $sql2 = "SELECT * FROM `prestamo_cuotas` WHERE `idPrestamo` = {$idPresPost}";
             if($llamado2 = $cadena->query($sql2)){
               $totalRows = $llamado2->num_rows;
               while($respuesta2 = $llamado2->fetch_assoc()){
@@ -87,7 +90,7 @@ if($llamado= $conection->query($sql)){
               break;
             case '3':
             $i=0;
-            $sql2 = "SELECT * FROM `prestamo_cuotas` WHERE `idPrestamo` = {$_GET['prestamo']}";
+            $sql2 = "SELECT * FROM `prestamo_cuotas` WHERE `idPrestamo` = {$idPresPost}";
               ?> 
               <thead><tr><th>N°</th> <th>F. Pago</th> <th>Saldo de capital</th> <th>Amotización</th> <th>Interés</th> <th>SEG</th> <th>ITF</th> <th>Total Cuota</th> </tr></thead>
               <tbody>
