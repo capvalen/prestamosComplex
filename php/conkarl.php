@@ -19,4 +19,8 @@ $cadena->set_charset("utf8");
 
 $esclavo= new mysqli($server, $username, $password, $db);
 $esclavo->set_charset("utf8");
+
+$prisionero= new mysqli($server, $username, $password, $db);
+$prisionero->set_charset("utf8");
+
 ?>

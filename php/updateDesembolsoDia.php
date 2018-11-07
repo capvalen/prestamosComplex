@@ -6,65 +6,59 @@ require_once('../vendor/autoload.php');
 $base58 = new StephenHill\Base58();
 
 
-$idPrestamo = $base58->decode($_GET['credito']);
+$idPrestamo = $base58->decode($_POST['credito']);
+
+$sqlDesembolso= "UPDATE `prestamo` SET `presFechaDesembolso`=now() WHERE `idPrestamo`={$idPrestamo};";
+$respDesemb= $cadena->query($sqlDesembolso);
 
 
-$clientes=$_POST['clientes'];
-$sqlClie='';
-foreach ($clientes as $cliente ) {
-	$sqlClie=$sqlClie . "INSERT INTO `involucrados`(`idPrestamo`, `idCliente`, `idTipoCliente`)
-	VALUES ($idPrestamo, {$cliente['id']}, {$cliente['grado']});";
+$sqlCabecera = "SELECT `presMontoDesembolso`, `presPeriodo`, `idTipoPrestamo` FROM `prestamo` WHERE `idPrestamo`={$idPrestamo};";
+$respCabez= $prisionero->query($sqlCabecera);
+$rowCabez= $respCabez->fetch_assoc();
+
+
+$monto = $rowCabez['presMontoDesembolso'];
+$plazo = $rowCabez['presPeriodo'];
+$saldo = $rowCabez['presMontoDesembolso'];
+$modo= $rowCabez['idTipoPrestamo'];
+
+
+$sqlRegistrado= "SELECT idCuota, cuotFechaPago FROM `prestamo_cuotas`
+where idPrestamo= {$idPrestamo}
+order by cuotFechaPago asc";
+$respAuto = $esclavo->query($sqlRegistrado);
+
+$autoFechas=array();
+$i=0;
+while($rowAuto= $respAuto->fetch_assoc() )
+{
+	$autoFechas[$i]= $rowAuto;
+	$i++;
 }
-$esclavo->multi_query($sqlClie);
 
 
 
-$fecha = new DateTime($_POST['fDesembolso']);
+$fecha = new DateTime(); //fecha de hoy
 
 $feriados = include "feriadosProximos.php";
-$monto = $_POST['monto'];
-$plazo = $_POST['periodo'];
-$saldo = $_POST['monto'];
+
 $saltoDia = new DateInterval('P1D'); //aumenta 1 día
-$sqlCuotas='';
 
 //Para saber si es sábado(6) o domingo(0):  format('w') 
 
-$lista1= '[{
-	"numDia": 0,
-	"fPago": "'.$fecha->format('Y-m-d').'",
-	"razon": "Desembolso",
-	"cuota": 0,
-	"interes": 0,
-	"amortizacion": 0,
-	"saldo": '.$saldo.',
-	"saldoReal": 0
-	}]';
-$jsonSimple= json_decode($lista1, true);
-
-switch ($_POST['modo']){
+switch ($modo){
 	case "1": //DIARIO
-		$interes = 0.0066;
-		$cuota = round(($monto*$interes)/(1-pow((1+$interes),-$plazo)),1, PHP_ROUND_HALF_UP);
-		
 		$intervalo = new DateInterval('P1D'); //aumenta 1 día
 		break;
 	case "2": //SEMANAL
-		$interes = 0.0152;
-		$cuota = round(($monto*$interes)/(1-pow((1+$interes),-$plazo)),1, PHP_ROUND_HALF_UP);
-		$intervalo = new DateInterval('P1W'); //aumenta 1 día
+		$intervalo = new DateInterval('P1W'); //aumenta 1 semana
 		break;
 	case "4": //QUINCENAL
-		$interes = 0.0295;
-		$cuota = round(($monto*$interes)/(1-pow((1+$interes),-$plazo)),1, PHP_ROUND_HALF_UP);
-		$intervalo = new DateInterval('P15D'); //aumenta 1 día
+		$intervalo = new DateInterval('P15D'); //aumenta 15 días
 		break;
 	case "3": //MENSUAL
-		$tea = 0.4425;
-		$itf= 0.00005;
-		$tseg= 0.00038;
-
-		$tem= pow((1+ $tea), 1/12)-1;
+		
+	/* 	$tem= pow((1+ $tea), 1/12)-1;
 		$tEfecDiaria= pow(1+$tem, 1/30)-1;
 		$tSegDiario= round($tseg/30,8);
 		$fechaPago=new DateTime('2018-11-01');
@@ -86,7 +80,7 @@ switch ($_POST['modo']){
 		}]';
 		
 		$intervalo = new DateInterval('P30D'); //aumenta 1 día
-		$jsonPagos= json_decode($lista, true);
+		$jsonPagos= json_decode($lista, true); */
 		
 		//print_r($jsonPagos[0]['fPago']);
 		//$cuota = round(($monto*$interes)/(1-pow((1+$interes),-$plazo)),1, PHP_ROUND_HALF_UP);
@@ -96,28 +90,18 @@ switch ($_POST['modo']){
 	break;
 }
 
-if($_POST['modo']!=3){
+$sqlCuotasFechas= "";
+if($modo!=3){
 	$interesSumado=0;
-	$fecha->add($intervalo);
+	//$fecha->add($intervalo);
 	//$cuota = round($monto*$interes/$plazo,2);
-	for ($i=0; $i < $plazo ; $i++) {
-	
-		
+	$j=0;
+	for ($i=0; $i <= $plazo ; $i++) { 
 		$razon = esFeriado($feriados, $fecha->format('Y-m-d'));
 		if($razon!=false ){
 			//echo "si es feriado";
 			//echo "Feriado ".": ". $fecha->format('d/m/Y'). "<br>";
 			$i--;
-			$jsonSimple[]=array(
-				"numDia"=>'-',
-				"fPago" => $fecha->format('Y-m-d'),
-				"razon" => 'Feriado',
-				"cuota" => $razon,
-				"interes"=> '',
-				"amortizacion"=> '',
-				"saldo" => '',
-				"saldoReal"=> ''
-			);
 			$fecha->add($saltoDia);
 		}else{
 			//echo "no es feriado";
@@ -125,54 +109,30 @@ if($_POST['modo']!=3){
 				//No hacer nada
 				//echo "\nDomingo ".": ". $fecha->format('d/m/Y'). "<br>\n";
 				$i--;
-				$jsonSimple[]=array(
-					"numDia"=>'-',
-					"fPago" => $fecha->format('Y-m-d'),
-					"razon" =>'Domingo',
-					"cuota" => '',
-					"interes"=> '',
-					"amortizacion"=> '',
-					"saldo" => '',
-					"saldoReal"=> ''
-				);
 				$fecha->add($saltoDia);
-			// }else if($fecha->format('w')=='6'){ 
 			// 	//echo "Sábado ".": ". $fecha->format('d/m/Y'). "<br>";  ---------SI SE CUENTAN SABADOS EN ESTE SISTEMA---------
-			// 	$i--;
 			}else{
-				//$suma+=$cuota;
-				//$saldo = $saldo*$interes;
-				$interesVariable= round($saldo * $interes, 1, PHP_ROUND_HALF_UP);
-				$amortizacion = round($cuota-$interesVariable, 1, PHP_ROUND_HALF_UP);
-				$saldo = $saldo -$amortizacion;
-				$interesSumado+=$interesVariable;
-
-				$jsonSimple[]=array(
-					"numDia"=>$i+1,
-					"fPago" => $fecha->format('Y-m-d'),
-					"razon" =>'',
-					"cuota" => $cuota,
-					"interes"=> $interesVariable,
-					"amortizacion"=> $amortizacion,
-					"saldo" => $saldo,
-					"saldoReal"=> 0
-				);
 				//echo "Día #".($i+1).": ". $fecha->format('d/m/Y') . "<br>";
+				if($j==0){ $autoFechas[$j]['cuotFechaPago']= date('Y-m-d'); }
+				else{ $autoFechas[$j]['cuotFechaPago']= $fecha->format('Y-m-d');}
+				//************************ --------------  */HACER EL UPDATEEEEEEEEEEE --------------------- ****************
+				$sqlCuotasFechas=$sqlCuotasFechas."UPDATE `prestamo_cuotas` SET `cuotFechaPago`='".$autoFechas[$j]['cuotFechaPago']."'
+				WHERE `idCuota`=".$autoFechas[$j]['idCuota'].";";
+				$j++;
+
 				$fecha->add($intervalo);
 				//echo $sql;
-				
 				//unset($conection);
-				
-			
 			}
 		}
-	
 	}
-	//echo $sqlCuotas;
+	//echo $sqlCuotasFechas;
+	$cadena->multi_query($sqlCuotasFechas);
+	//var_dump($autoFechas);
 	
 
 
-	$jsonSimple[0]['saldoReal'] = $monto+$interesSumado;
+/* 	$jsonSimple[0]['saldoReal'] = $monto+$interesSumado;
 	$dia=1;
 	for ($j=0; $j <  count($jsonSimple) ; $j++) {
 		
@@ -191,7 +151,8 @@ if($_POST['modo']!=3){
 	
 	}
 	
-	$cadena->multi_query($sqlCuotas);
+	 */
+	 echo true;
 }//fin de if modo=3
 else{
 	//echo "\n";
@@ -263,6 +224,6 @@ function esFeriado($feriados, $dia){
 
 $idEncrip = '000000'.$idPrestamo;
 $idEncrip = substr($idEncrip, -7);
-echo $base58->encode($idEncrip);
+//echo $base58->encode($idEncrip);
 
 ?>

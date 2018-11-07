@@ -49,7 +49,7 @@ $base58 = new StephenHill\Base58();
 	u.usuNombres,
 	case presFechaDesembolso when '0000-00-00 00:00:00' then 'Desembolso pendiente' else presFechaDesembolso end as `presFechaDesembolso`,
 	case presAprobado when 0 then 'Sin aprobar' else 'Aprobado' end as `presAprobado`, 
-	case when ua.usuNombres is Null then '-' else ua.usuNombres end  as `usuarioAprobador`
+	case when ua.usuNombres is Null then '-' else ua.usuNombres end  as `usuarioAprobador`, pre.idTipoPrestamo
 	FROM `prestamo` pre
 	inner join usuario u on u.idUsuario = pre.idUsuario
 	left join usuario ua on ua.idUsuario = pre.idUsuarioAprobador
@@ -64,8 +64,14 @@ $base58 = new StephenHill\Base58();
 		<tbody>
 		</tbody> -->
 		<?php if( $respuesta = $conection->query($sqlCr)){
+			$contadorF = $respuesta->num_rows;
 			$rowCr = $respuesta->fetch_assoc();
+			
+			if($contadorF!=0):
 			$_POST['plazos'] = $rowCr['presPeriodo'];
+			$_POST['periodo'] = $rowCr['presPeriodo'];
+			$_POST['monto']= $rowCr['presMontoDesembolso'];
+			$_POST['modo']= $rowCr['idTipoPrestamo'];
 			?>
 		<div class="container-fluid" id="contenedorCreditosFluid">
 			<p><strong>Datos de crédito</strong></p>
@@ -74,8 +80,8 @@ $base58 = new StephenHill\Base58();
 				<div class="col-sm-2"><label for="">Verificador</label><p><?= $rowCr['usuarioAprobador']; ?></p></div>
 			</div>
 			<div class="row">
-				<div class="col-sm-2"><label for="">Fecha préstamo</label><p><?php $fechaAut= new DateTime($rowCr['presFechaAutom']); echo $fechaAut->format('j/m/Y H:m a'); ?></p></div>
-				<div class="col-sm-2"><label for="">Fecha desemboslo</label><p><?php if($rowCr['presFechaDesembolso']=='Desembolso pendiente'){echo $rowCr['presFechaDesembolso'];}else{$fechaDes= new DateTime($rowCr['presFechaDesembolso']); echo $fechaDes->format('j/m/Y H:m a');} ?></p></div>
+				<div class="col-sm-2"><label for="">Fecha préstamo</label><p><?php $fechaAut= new DateTime($rowCr['presFechaAutom']); echo $fechaAut->format('j/m/Y h:m a'); ?></p></div>
+				<div class="col-sm-2"><label for="">Fecha desemboslo</label><p><?php if($rowCr['presFechaDesembolso']=='Desembolso pendiente'){echo $rowCr['presFechaDesembolso'];}else{$fechaDes= new DateTime($rowCr['presFechaDesembolso']); echo $fechaDes->format('j/m/Y h:m a');} ?></p></div>
 				<div class="col-sm-2"><label for="">Desembolso</label><p>S/ <?= number_format($rowCr['presMontoDesembolso'],2); ?></p></div>
 				<div class="col-sm-2"><label for="">Periodo</label><p><?= $rowCr['tpreDescipcion']; ?></p></div>
 				<div class="col-sm-2"><label for="">Analista</label><p><?= $rowCr['usuNombres']; ?></p></div>
@@ -109,18 +115,52 @@ $base58 = new StephenHill\Base58();
 				<button class="btn btn-success btn-outline btn-lg" id="btnShowVerificarCredito"><i class="icofont-check-circled"></i> Verificar crédito</button>
 			<?php endif; ?>
 
-			<?php if(isset($_GET['credito']) && $rowCr['presAprobado']<> 'Sin aprobar'): ?>
+			<?php if(isset($_GET['credito']) && $rowCr['presAprobado']<> 'Sin aprobar' && $rowCr['presFechaDesembolso']=='Desembolso pendiente' ): ?>
 				<button class="btn btn-warning btn-outline btn-lg" id="btnDesembolsar"><i class="icofont-money"></i> Desembolsar</button>				
 			<?php endif; ?>
 			</div>
 			<hr>
 
 			<p><strong>Cuotas planificadas:</strong></p>
+			<table class="table table-hover">
+				<thead>
+				<tr>
+					<th>Sub-ID</th>
+					<th>Fecha programada</th>
+					<th>Cuota</th>
+					<th>Cancelación</th>
+					<th>Pago</th>
+					<th>Saldo</th>
+					<th>@</th>
+				</tr>
+				</thead>
+				<tbody>
+			<?php 
+			$sqlCuot= "SELECT * FROM prestamo_cuotas where idPrestamo = {$codCredito}
+			order by cuotFechaPago asc";
+			if($respCuot = $cadena->query($sqlCuot)){ $k=0;
+				while($rowCuot = $respCuot->fetch_assoc()){ ?>
+				<tr>
+					<td>SP-<?= $rowCuot['idCuota']; ?></td>
+					<td><?php $fechaCu= new DateTime($rowCuot['cuotFechaPago']); echo $fechaCu->format('d/m/Y'); ?></td>
+					<td><?= number_format($rowCuot['cuotCuota'],2); ?></td>
+					<td><?php if($rowCuot['cuotPago']=='0.00'): echo "Desembolso"; elseif($rowCuot['cuotFechaCancelacion']=='0000-00-00'): echo 'Pendiente'; else: echo $rowCuot['cuotFechaCancelacion']; endif;  ?></td>
+					<td><?= number_format($rowCuot['cuotPago'],2); ?></td>
+					<td><?= number_format($rowCuot['cuotSaldo'],2); ?></td>
+					<td><?php if($rowCuot['cuotPago']=='0.00' && $rowCr['presFechaDesembolso']<>'Desembolso pendiente' && $k>=1): ?> <button class="btn btn-primary btn-outline btn-sm btnPagarCuota"><i class="icofont-money"></i> Pagar</button> <?php endif;?> </td>
+				</tr>
+			<?php $k++; }
+			} ?>
+				</tbody>
+			</table>
 
 		</div><!-- Fin de contenedorCreditosFluid -->
 			
 
-		<?php } //Fin de if $respuesta ?>
+		<?php else: ?>
+				<p>El código solicitado no está asociado a ningún crédito, revise el código o comuníquelo al área responsable. </p>
+		<?php endif; //Fin de if $contadorF 
+		} //Fin de if $respuesta 	?>
 		<!-- </table> -->
 
 		<?php else: ?>
@@ -302,9 +342,10 @@ $('#txtAddCliente').keypress(function (e) {
 });
 $('#btnBuscarClientesDni').click(function () {
 	if( $('#txtAddCliente').val()!='' ){
-
-		if( $('#txtAddCliente').val().toUpperCase().indexOf('CR-')==0 ){
-			$.post('php/58encode.php', {texto: $('#txtAddCliente').val().replace('CR-', '') }, function(resp) {
+		var valor = $('#txtAddCliente').val().toUpperCase();
+		
+		if( valor.indexOf('CR-')==0 ){
+			$.post('php/58encode.php', {texto: valor.replace('CR-', '') }, function(resp) {
 				window.location.href = 'creditos.php?credito='+resp;
 			});
 		}else{
@@ -503,17 +544,27 @@ $('#sltTipoPrestamo').change(function() {
 $('#dtpFechaIniciov3').change(function() {
 	$('#dtpFechaPrimerv3').bootstrapMaterialDatePicker( 'setMinDate', moment($('#dtpFechaIniciov3').val(), 'DD/MM/YYYY').add(1, 'days') );
 });
+<?php if(isset( $_GET['credito'])): ?>
+$('#btnDesembolsar').click(function() {
+	$.ajax({url: 'php/updateDesembolsoDia.php', type: 'POST', data:{ credito: '<?= $_GET['credito'];?>' }}).done(function(resp) {
+		console.log(resp)
+		if(resp==true){
+			location.reload();
+		}
+	});
+});
+<?php  endif; ?>
 <?php if(isset($_GET['credito']) && $rowCr['presAprobado']=== 'Sin aprobar'): ?>
 $('#btnShowVerificarCredito').click(function() {
 	$('#modalVerificarCredito').modal('show');
 });
-	$('#btnVerificarCredito').click(function() {
-		$.ajax({url: 'php/updateVerificarCredito.php', type: 'POST', data: { credit: '<?= $codCredito; ?>' }}).done(function(resp) { console.log(resp)
-			if(resp==1){
-				location.reload();
-			}
-		});
+$('#btnVerificarCredito').click(function() {
+	$.ajax({url: 'php/updateVerificarCredito.php', type: 'POST', data: { credit: '<?= $codCredito; ?>' }}).done(function(resp) { console.log(resp)
+		if(resp==1){
+			location.reload();
+		}
 	});
+});
 <?php endif; ?>
 </script>
 <?php } ?>
