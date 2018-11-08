@@ -138,6 +138,9 @@ $('#txtBuscarNivelGod').keypress(function (e) {
 		}
 	}
 });
-$('#liDatosPersonales').hover(function() {
-	$(this).toggleClass('open');
+$('#liDatosPersonales').mouseenter(function() {
+	$(this).addClass('open');
+});
+$('#liDatosPersonales').mouseleave(function() {
+	$(this).removeClass('open');
 });

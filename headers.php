@@ -2,7 +2,7 @@
 
 <!-- Custom CSS -->
 <link rel="shortcut icon" href="images/favicon.png">
-<link rel="stylesheet" href="css/sidebarDeslizable.css?version=1.1.8" >
+<link rel="stylesheet" href="css/sidebarDeslizable.css?version=1.1.9" >
 <link rel="stylesheet" href="css/cssBarraTop.css?version=1.0.8">
 <link rel="stylesheet" href="css/estilosElementosv3.css?version=3.0.59" >
 <link rel="stylesheet" href="css/colorsmaterial.css">

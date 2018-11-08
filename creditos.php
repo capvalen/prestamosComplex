@@ -25,8 +25,8 @@ $base58 = new StephenHill\Base58();
 <body>
 
 <style>
-#contenedorCreditosFluid, label{font-weight: 500;}
-#contenedorCreditosFluid, p{color: #a35bb4;}
+#contenedorCreditosFluid label{font-weight: 500;}
+#contenedorCreditosFluid p, #contenedorCreditosFluid table{color: #a35bb4;}
 .modal p{color: #333;}
 </style>
 <div id="wrapper">
@@ -93,14 +93,14 @@ $base58 = new StephenHill\Base58();
 
 			<div class="row">
 				<ul>
-		<?php $sqlInv= "SELECT i.idPrestamo, lower(concat(c.cliApellidoPaterno, ' ', c.cliApellidoMaterno, ', ', c.cliNombres)) as `datosCliente` , tpc.tipcDescripcion FROM `involucrados` i
+		<?php $sqlInv= "SELECT i.idPrestamo, lower(concat(c.cliApellidoPaterno, ' ', c.cliApellidoMaterno, ', ', c.cliNombres)) as `datosCliente` , tpc.tipcDescripcion, i.idCliente FROM `involucrados` i
 				inner join cliente c on i.idCliente = c.idCliente
 				inner join tipocliente tpc on tpc.idTipoCliente = i.idTipoCliente
 				where idPrestamo ='{$codCredito}'";
 
 				if( $respuestaInv=$conection->query($sqlInv) ){
 					while( $rowInv=$respuestaInv->fetch_assoc() ){  ?>
-						<li class="mayuscula"><?= $rowInv['datosCliente']; ?></li>
+						<li class="mayuscula"><a href="clientes.php?idCliente=<?= $base58->encode(substr('000000'.$rowInv['idCliente'], -7));?>"><?= $rowInv['datosCliente']; ?></a></li>
 			<?php }
 				}
 			?>
@@ -147,7 +147,7 @@ $base58 = new StephenHill\Base58();
 					<td><?php if($rowCuot['cuotPago']=='0.00'): echo "Desembolso"; elseif($rowCuot['cuotFechaCancelacion']=='0000-00-00'): echo 'Pendiente'; else: echo $rowCuot['cuotFechaCancelacion']; endif;  ?></td>
 					<td><?= number_format($rowCuot['cuotPago'],2); ?></td>
 					<td><?= number_format($rowCuot['cuotSaldo'],2); ?></td>
-					<td><?php if($rowCuot['cuotPago']=='0.00' && $rowCr['presFechaDesembolso']<>'Desembolso pendiente' && $k>=1): ?> <button class="btn btn-primary btn-outline btn-sm btnPagarCuota"><i class="icofont-money"></i> Pagar</button> <?php endif;?> </td>
+					<td><?php if( ($_COOKIE['ckPower'] == 1 || $_COOKIE['ckPower'] == 4 ) &&  $rowCuot['cuotPago']=='0.00' && $rowCr['presFechaDesembolso']<>'Desembolso pendiente' && $k>=1): ?> <button class="btn btn-primary btn-outline btn-sm btnPagarCuota"><i class="icofont-money"></i> Pagar</button> <?php endif;?> </td>
 				</tr>
 			<?php $k++; }
 			} ?>

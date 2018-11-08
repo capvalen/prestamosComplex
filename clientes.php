@@ -1,3 +1,7 @@
+<?php 
+include 'php/conkarl.php';
+require_once('vendor/autoload.php');
+$base58 = new StephenHill\Base58(); ?>
 <!DOCTYPE html>
 <html lang="es">
 
@@ -39,6 +43,7 @@
 				<button class="btn btn-infocat btn-outline btnSinBorde" id="btnAddClientes"><i class="icofont-ui-add"></i> Nuevo cliente</button>
 
 			</div></div>
+			<?php if(!isset($_GET['idCliente'])){ ?>
 			<div class="container-fluid row"><br>
 				<h4><?php if(isset($_GET['buscar'])){echo 'Resultado de la búsqueda';}else{ echo 'Últimos clientes registrados';} ?></h4>
 				<div class="table-responsive">
@@ -65,6 +70,87 @@
 					</tbody>
 					</table>
 				</div>
+				<?php }else{
+				$idCli= $base58->decode($_GET['idCliente']);
+				$sqlDato= "SELECT `idCliente`, `cliDni`, lower(`cliNombres`) as `cliNombres`, lower(`cliApellidoPaterno`) as `cliApellidoPaterno`, lower(`cliApellidoMaterno`) as `cliApellidoMaterno`, `cliSexo`, `cliNumHijos`, `cliDireccionesIgual`,
+				ca.calDescripcion, lower(a.addrDireccion) as addrDireccion, lower(a.addrReferencia) as addrReferencia, a.addrNumero,
+				lower(di.distrito) as distrito, lower(pro.provincia) as provincia, lower(de.departamento) as departamento,
+				lower(can.calDescripcion) as ncalDescripcion, lower(an.addrDireccion) as naddrDireccion, lower(an.addrReferencia) as naddrReferencia, an.addrNumero as naddrNumero, 
+				lower(din.distrito) as ndistrito, lower(pron.provincia) as nprovincia, lower(den.departamento) as ndepartamento,
+				`cliCelularPersonal`, `cliCelularReferencia`, ec.civDescripcion, `cliActivo`
+				FROM `cliente` c
+				inner join address a on a.idAddress= c.`cliDireccionCasa`
+				inner join distrito di on di.idDistrito = a.idDistrito
+				inner join provincia pro on pro.idProvincia = a.idProvincia
+				inner join departamento de on de.idDepartamento = a.idDepartamento
+				inner join calles ca on ca.idCalle = a.idCalle
+				
+				inner join address an on an.idAddress= c.`cliDireccionNegocio`
+				inner join distrito din on din.idDistrito = an.idDistrito
+				inner join provincia pron on pron.idProvincia = an.idProvincia
+				inner join departamento den on den.idDepartamento = an.idDepartamento
+				inner join calles can on can.idCalle = a.idCalle
+				
+				inner join estadocivil ec on ec.idEstadoCivil = c.idEstadoCivil
+				where idCliente = {$idCli}";
+				$respDato = $cadena->query($sqlDato);
+				$rowDato=$respDato->fetch_assoc();
+				?>
+				<hr>
+				<h4>Cliente CL-<?= $idCli ?></h4>
+
+				<div class="container-fluid row">
+				<div class="col-sm-3">
+					<p><strong>D.N.I.:</strong> <span class="mayuscula"><?= $rowDato['cliDni']; ?></span></p>
+					<p><strong>Sexo:</strong> <span class="mayuscula"><?php if($rowDato['cliSexo']==0): echo 'Femenino'; else: echo 'Masculino'; endif; ?></span></p>
+					<p><strong>Celular Personal:</strong> <span><?= $rowDato['cliCelularPersonal']; ?></span></p>
+				</div>
+				<div class="col-sm-3">
+					<p><strong>Apellidos:</strong> <span class="mayuscula"><?= $rowDato['cliApellidoPaterno'].' '.$rowDato['cliApellidoMaterno']; ?></span></p>
+					<p><strong>N° Hijos:</strong> <span class="mayuscula"><?= $rowDato['cliNumHijos']; ?></span></p>
+					<p><strong>Celular Referencial:</strong> <span><?= $rowDato['cliCelularReferencia']; ?></span></p>
+				</div>
+				<div class="col-sm-3">
+				<p><strong>Nombres:</strong> <span class="mayuscula"><?= $rowDato['cliNombres']; ?></span></p>
+				</div>
+				</div> <!-- fin de row -->
+				<div class="container-fluid row">
+					<div class="col-sm-12">
+						<p><strong>Dirección de Hogar:</strong> <span class="mayuscula"><?= $rowDato['calDescripcion']." ".$rowDato['addrDireccion']. ' #'.$rowDato['addrNumero']." - ".$rowDato['distrito']." - ".$rowDato['provincia']." - ".$rowDato['departamento'] ; ?></span></p>
+						<p>Referencia: <em class="mayuscula"><?= $rowDato['addrReferencia']; ?></em></p>
+					</div>
+				<?php if($rowDato['cliDireccionesIgual']==0): ?>
+					<div class="col-sm-12">
+						<p><strong>Dirección del Negocio:</strong> <span class="mayuscula"><?= $rowDato['ncalDescripcion']." ".$rowDato['naddrDireccion']. ' #'.$rowDato['naddrNumero']." - ".$rowDato['ndistrito']." - ".$rowDato['nprovincia']." - ".$rowDato['ndepartamento'] ; ?></span></p>
+						<p>Referencia: <em class="mayuscula"><?= $rowDato['naddrReferencia']; ?></em></p>
+					</div>
+				<?php endif; ?>
+				</div>
+				<hr>
+				<div class="container-fluid row">
+					<label for="">Préstamos solicitados:</label>
+					<div class="table-responsive">
+						<table class="table table-hover">
+							<thead>
+								<tr>
+									<th>Agencia</th>
+									<th>N° Crédito</th>
+									<th>Monto desembolsado</th>
+									<th>Cuota</th>
+									<th>Saldo k</th>
+									<th>Fecha de desembolso</th>
+									<th>Fecha de cancelación</th>
+									<th>Forma de pago</th>
+								</tr>
+							</thead>
+							<tbody>
+								<?php include 'php/listarHistorialPagos.php' ?>
+							</tbody>
+						</table>
+					</div>
+				</div>
+
+				<?php } ?>
 			</div>
 			
 			<!-- Fin de contenido principal -->
