@@ -3,6 +3,7 @@ header('Content-Type: text/html; charset=utf8');
 date_default_timezone_set('America/Lima');
 include 'php/conkarl.php';
 require_once('vendor/autoload.php');
+include "php/variablesGlobales.php";
 $base58 = new StephenHill\Base58();
 
  ?>
@@ -16,7 +17,7 @@ $base58 = new StephenHill\Base58();
 		<meta name="description" content="">
 		<meta name="author" content="">
 
-		<title>Principal - Sistema Préstamos</title>
+		<title>Créditos - Sistema Préstamos</title>
 
 		<!-- Bootstrap Core CSS -->
 		<?php include 'headers.php'; ?>
@@ -48,7 +49,7 @@ $base58 = new StephenHill\Base58();
 	$sqlCr="SELECT presFechaAutom, presMontoDesembolso, presPeriodo, tpr.tpreDescipcion,
 	u.usuNombres,
 	case presFechaDesembolso when '0000-00-00 00:00:00' then 'Desembolso pendiente' else presFechaDesembolso end as `presFechaDesembolso`,
-	case presAprobado when 0 then 'Sin aprobar' else 'Aprobado' end as `presAprobado`, 
+	case presAprobado when 0 then 'Sin aprobar' when 2 then 'Rechazado' else 'Aprobado' end as `presAprobado`, 
 	case when ua.usuNombres is Null then '-' else ua.usuNombres end  as `usuarioAprobador`, pre.idTipoPrestamo
 	FROM `prestamo` pre
 	inner join usuario u on u.idUsuario = pre.idUsuario
@@ -113,16 +114,17 @@ $base58 = new StephenHill\Base58();
 				<button class="btn btn-negro btn-outline btn-lg " id="btnImpresionPrevia" data-pre="<?= $_GET['credito'];?>"><i class="icofont-print"></i> Imprimir cronograma</button>
 			<?php if(isset($_GET['credito']) && $rowCr['presAprobado']== 'Sin aprobar'): ?>
 				<button class="btn btn-success btn-outline btn-lg" id="btnShowVerificarCredito"><i class="icofont-check-circled"></i> Verificar crédito</button>
+				<button class="btn btn-danger btn-outline btn-lg" id="btnDenyVerificarCredito"><i class="icofont-thumbs-down"></i> Denegar crédito</button>
 			<?php endif; ?>
 
-			<?php if(isset($_GET['credito']) && $rowCr['presAprobado']<> 'Sin aprobar' && $rowCr['presFechaDesembolso']=='Desembolso pendiente' ): ?>
+			<?php if(isset($_GET['credito']) && $rowCr['presAprobado']<> 'Sin aprobar' && $rowCr['presAprobado']<> "Rechazado" && $rowCr['presFechaDesembolso']=='Desembolso pendiente' && in_array($_COOKIE['ckPower'], $soloAdmis)): ?>
 				<button class="btn btn-warning btn-outline btn-lg" id="btnDesembolsar"><i class="icofont-money"></i> Desembolsar</button>				
 			<?php endif; ?>
 			</div>
 			<hr>
 
 			<p><strong>Cuotas planificadas:</strong></p>
-			<table class="table table-hover">
+			<table class="table table-hover" id="tableSubIds">
 				<thead>
 				<tr>
 					<th>Sub-ID</th>
@@ -144,10 +146,15 @@ $base58 = new StephenHill\Base58();
 					<td>SP-<?= $rowCuot['idCuota']; ?></td>
 					<td><?php $fechaCu= new DateTime($rowCuot['cuotFechaPago']); echo $fechaCu->format('d/m/Y'); ?></td>
 					<td><?= number_format($rowCuot['cuotCuota'],2); ?></td>
-					<td><?php if($rowCuot['cuotPago']=='0.00'): echo "Desembolso"; elseif($rowCuot['cuotFechaCancelacion']=='0000-00-00'): echo 'Pendiente'; else: echo $rowCuot['cuotFechaCancelacion']; endif;  ?></td>
+					<td><?php if($rowCuot['cuotCuota']=='0.00' && $rowCuot['cuotPago']=='0.00'): echo "Desembolso"; elseif($rowCuot['cuotFechaCancelacion']=='0000-00-00'): echo 'Pendiente'; else: echo $rowCuot['cuotFechaCancelacion']; endif;  ?></td>
 					<td><?= number_format($rowCuot['cuotPago'],2); ?></td>
 					<td><?= number_format($rowCuot['cuotSaldo'],2); ?></td>
-					<td><?php if( ($_COOKIE['ckPower'] == 1 || $_COOKIE['ckPower'] == 4 ) &&  $rowCuot['cuotPago']=='0.00' && $rowCr['presFechaDesembolso']<>'Desembolso pendiente' && $k>=1): ?> <button class="btn btn-primary btn-outline btn-sm btnPagarCuota"><i class="icofont-money"></i> Pagar</button> <?php endif;?> </td>
+					<td><?php if( in_array($_COOKIE['ckPower'], $soloAdmis) &&  $rowCuot['cuotPago']=='0.00' && $rowCr['presFechaDesembolso']<>'Desembolso pendiente' && $k>=1):
+						?> <button class="btn btn-primary btn-outline btn-sm btnPagarCuota"><i class="icofont-money"></i> Pagar</button> <?php
+					endif;
+					if($rowCuot['cuotPago']<>'0.00' && $rowCr['presFechaDesembolso']<>'Desembolso pendiente'): 
+						?> <button class="btn btn-success btn-outline btn-sm" disabled><i class="icofont-verification-check"></i></button> <?php
+					endif;?> </td>
 				</tr>
 			<?php $k++; }
 			} ?>
@@ -287,7 +294,7 @@ $base58 = new StephenHill\Base58();
 <?php include 'php/modals.php'; ?>
 <?php include 'php/existeCookie.php'; ?>
 
-<?php if ( isset($_COOKIE['ckidUsuario']) ){?>
+<?php if ( isset($_COOKIE['ckidUsuario']) ){ ?>
 <script>
 datosUsuario();
 $('.selectpicker').selectpicker();
@@ -296,7 +303,7 @@ $(document).ready(function(){
 <?php
 if(isset($_GET['titular'])){
 ?>
-agregarClienteCanasta(<?= $_GET['titular']; ?>, 1);
+agregarClienteCanasta('<?= $_GET['titular']; ?>', 1);
 <?php
 }
 ?>
@@ -379,7 +386,10 @@ $('#tbodySocios').on('click','.btnRemoveCanasta',function() {
 	$(this).parent().parent().remove();
 	//console.log( $(this).parent().parent().html() );
 });
-});
+$('#tableSubIds tr').last().find('td').eq(5).text('0.00')
+
+
+}); //Fin de Document ready
 
 $('#btnSimularPagos').click(function() {
 	if( $('#sltTipoPrestamo').val()=='' || $('#txtPeriodo').val()=='' || $('#txtMontoPrinc').val()=='' ||  parseFloat($('#txtPeriodo').val())==0 || parseFloat($('#txtMontoPrinc').val())==0 ){
@@ -450,9 +460,9 @@ $('#btnSimularPagos').click(function() {
 	}
 	} //fin de else
 });
-function agregarClienteCanasta(idCl, cargo) {
+function agregarClienteCanasta(idCl, cargo) { //console.log( idCl );
 	$.ajax({url: 'php/ubicarDatosCliente.php', type: 'POST', data: { idCli: idCl }}).done(function(resp) {
-//	console.log(resp);
+	//console.log(resp);
 	var dato = JSON.parse(resp);
 	var botonDelete;
 	if(cargo!=1){
@@ -558,6 +568,9 @@ $('#btnDesembolsar').click(function() {
 $('#btnShowVerificarCredito').click(function() {
 	$('#modalVerificarCredito').modal('show');
 });
+$('#btnDenyVerificarCredito').click(function() {
+	$('#modalDenegarCredito').modal('show');
+});
 $('#btnVerificarCredito').click(function() {
 	$.ajax({url: 'php/updateVerificarCredito.php', type: 'POST', data: { credit: '<?= $codCredito; ?>' }}).done(function(resp) { console.log(resp)
 		if(resp==1){
@@ -565,7 +578,31 @@ $('#btnVerificarCredito').click(function() {
 		}
 	});
 });
-<?php endif; ?>
+$('#btnDenegarCredito').click(function() {
+	$.ajax({url: 'php/updateDenegarCredito.php', type: 'POST', data: { credit: '<?= $codCredito; ?>', razon: $('#txtDenegarRazon').val() }}).done(function(resp) { console.log(resp)
+		if(resp==1){
+			location.reload();
+		}
+	});
+});
+<?php endif;
+if( in_array($_COOKIE['ckPower'], $admis) ){ ?>
+
+$('.btnPagarCuota').click(function() {
+	var code= $(this).parent().parent().children().first().text();
+	$('#strSubCredito').text( code );
+	$('#btnPagarCreditoCompleto').attr('data-id', code.replace('SP-', ''));
+	$('#modalPagoCreditoCompleto').modal('show');
+});
+$('#btnPagarCreditoCompleto').click(function() {
+	$.ajax({url: 'php/pagarCreditoCompleto.php', type: 'POST', data: { idCred: $(this).attr('data-id') }}).done(function(resp) {
+		console.log(resp)
+		if(resp==true){
+			location.reload();
+		}
+	});
+});
+<?php } ?>
 </script>
 <?php } ?>
 </body>

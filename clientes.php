@@ -1,7 +1,9 @@
 <?php 
 include 'php/conkarl.php';
+date_default_timezone_set('America/Lima');
+include "php/variablesGlobales.php";
 require_once('vendor/autoload.php');
-$base58 = new StephenHill\Base58(); ?>
+$base58 = new StephenHill\Base58();?>
 <!DOCTYPE html>
 <html lang="es">
 
@@ -24,6 +26,7 @@ $base58 = new StephenHill\Base58(); ?>
 
 <style>
 /* input{margin-bottom: 0px;} */
+.tdVigente{border-bottom: 1px solid #545454;}
 </style>
 <div id="wrapper">
 	<!-- Sidebar -->
@@ -141,6 +144,12 @@ $base58 = new StephenHill\Base58(); ?>
 									<th>Fecha de desembolso</th>
 									<th>Fecha de cancelación</th>
 									<th>Forma de pago</th>
+									<?php 
+									for ($i=0; $i < 15 ; $i++) { 
+										$j=$i+1;
+										echo "<th>". $j ."</th>";
+									}
+									?>
 								</tr>
 							</thead>
 							<tbody>

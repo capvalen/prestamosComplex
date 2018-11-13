@@ -177,7 +177,7 @@
 </div>
 </div>
 
-<!-- Modal para: VerificarCredito -->
+<!-- Modal para: Verificar o Denegar Credito -->
 <?php if(isset($_GET['credito']) && $rowCr['presAprobado']=== 'Sin aprobar'): ?>
 <div class='modal fade' id='modalVerificarCredito' tabindex='-1' role='dialog' aria-hidden='true'>
 	<div class='modal-dialog modal-sm' >
@@ -196,4 +196,44 @@
 		</div>
 	</div>
 </div>
-<?php endif; ?>
+<div class='modal fade' id='modalDenegarCredito' tabindex='-1' role='dialog' aria-hidden='true'>
+	<div class='modal-dialog modal-sm' >
+	<div class='modal-content '>
+		<div class='modal-header-danger'>
+			<button type='button' class='close' data-dismiss='modal' aria-label='Close' ><span aria-hidden='true'>&times;</span></button>
+			<h4 class='modal-tittle'> Denegar crédito</h4>
+		</div>
+		<div class='modal-body'>
+			<p>Está seguro que desea denegar éste Crédito <strong>«CR-<?= $codCredito; ?>»</strong></p>
+			<p>Ingrese un motivo para cancelarlo.</p>
+			<input type="text" id="txtDenegarRazon" class="form-control">
+		</div>
+		<div class='modal-footer'>
+			<button type='button' class='btn btn-default' data-dismiss='modal'><i class="icofont-close-circled"></i> Cerrar</button>
+			<button type='button' class='btn btn-success btn-outline' id='btnDenegarCredito'><i class="icofont-check-circled"></i> Denegar crédito</button>
+		</div>
+		</div>
+	</div>
+</div>
+<?php endif;
+
+if( in_array($_COOKIE['ckPower'], $admis) ){ ?>
+<!-- Modal para: pagar un credito completo -->
+<div class='modal fade' id='modalPagoCreditoCompleto' tabindex='-1' role='dialog' aria-hidden='true'>
+	<div class='modal-dialog modal-sm' >
+	<div class='modal-content '>
+		<div class='modal-header-primary'>
+			<button type='button' class='close' data-dismiss='modal' aria-label='Close' ><span aria-hidden='true'>&times;</span></button>
+			<h4 class='modal-tittle'> Confirmar</h4>
+		</div>
+		<div class='modal-body'>
+			<p>Está seguro que desea pagar completo éste crédito <strong>«<span id="strSubCredito"></span>»</strong></p>
+		</div>
+		<div class='modal-footer'>
+			<button type='button' class='btn btn-default' data-dismiss='modal'><i class="icofont-close-circled"></i> Cerrar</button>
+			<button type='button' class='btn btn-primary btn-outline' id='btnPagarCreditoCompleto'><i class="icofont-paper"></i> Cancelar crédito</button>
+		</div>
+		</div>
+	</div>
+</div>
+<?php } ?>

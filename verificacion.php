@@ -2,6 +2,7 @@
 header('Content-Type: text/html; charset=utf8');
 date_default_timezone_set('America/Lima');
 include 'php/conkarl.php';
+include "php/variablesGlobales.php";
 require_once('vendor/autoload.php');
 $base58 = new StephenHill\Base58();
 ?>
@@ -38,6 +39,15 @@ $base58 = new StephenHill\Base58();
 			<div class="col-lg-12 contenedorDeslizable ">
 			<!-- Empieza a meter contenido principal -->
 			<h3 class="purple-text text-lighten-1">Verificación de operaciones </h3><hr>
+
+			<div class="panel panel-default">
+				<div class="panel-body">
+					<a href="verificacion.php?pendientes" class="btn btn-lg btn-azul btn-outline"><i class="icofont-black-board"></i> Solicitudes pendientes </a>
+					<a href="verificacion.php?solicitudes" class="btn btn-lg btn-morado btn-outline"><i class="icofont-certificate-alt-2"></i> Mis solicitudes aprobadas </a>
+				</div>
+			</div>
+
+			<?php if (isset($_GET['pendientes'])): ?>
 
 			<p>Solicitudes pendientes de aprobación</p>
 			
@@ -87,6 +97,42 @@ $base58 = new StephenHill\Base58();
 				}
 			}
 			?>
+			</table>
+			<?php endif; //fin de if pendientes
+			if (isset($_GET['solicitudes'])): ?>
+			<table class="table">
+				<thead>
+					<tr>
+						<th>N° Crédito</th>
+						<th>Estado</th>
+						<th>Solicitante</th>
+						<th>Desembolso</th>
+						<th>Monto</th>
+					</tr>
+				</thead>
+				<tbody>
+			<?php
+				$sqlMis="SELECT pre.idPrestamo, presMontoDesembolso, presFechaAutom,
+				case presFechaDesembolso when '0000-00-00 00:00:00' then 'Desembolso pendiente' else presFechaDesembolso end as `presFechaDesembolso`,
+				concat (c.cliApellidoPaterno, ' ', c.cliApellidoMaterno, ', ', c.cliNombres) as cliNombres, i.idCliente,
+				case presAprobado when 0 then 'Sin aprobar' when 2 then 'Rechazado' else 'Aprobado' end as `presAprobado`
+				FROM `prestamo` pre
+				inner join involucrados i on i.idPrestamo= pre.idPrestamo
+				inner join cliente c on c.idCliente = i.idCliente
+				where `idUsuario` = {$_COOKIE['ckidUsuario']} and i.idTipoCliente=1
+				order by idPrestamo desc";
+				$resultadoMis=$cadena->query($sqlMis);
+				while($rowMis=$resultadoMis->fetch_assoc()){ ?>
+					<tr>
+						<td><a href="creditos.php?credito=<?= $base58->encode($rowMis['idPrestamo']);?>">CR-<?= $rowMis['idPrestamo']; ?></a></td>
+						<td><?= $rowMis['presAprobado']; ?></td>
+						<td><?= $rowMis['cliNombres']; ?></td>
+						<td><?= $rowMis['presFechaDesembolso']; ?></td>
+						<td><?= $rowMis['presMontoDesembolso']; ?></td>
+					</tr>
+			
+			<?php } endif; //fin de if solicitudes ?>
+				</tbody>
 			</table>
 				
 			<!-- Fin de contenido principal -->

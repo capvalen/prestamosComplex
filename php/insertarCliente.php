@@ -1,6 +1,7 @@
 <?php 
 require("conkarl.php");
 header('Content-Type: text/html; charset=utf8');
+date_default_timezone_set('America/Lima');
 
 
 $sql= "call insertarDireccion('{$_POST['direccion']}',{$_POST['zona']}, '{$_POST['referencia']}', '{$_POST['numero']}', {$_POST['departam']}, {$_POST['provinc']}, {$_POST['distrit']}, 0, {$_POST['calle']} )";

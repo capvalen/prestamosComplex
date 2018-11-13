@@ -221,7 +221,7 @@ function esFeriado($feriados, $dia){
 	}
 	return false;
 }
-
+sleep ( 1 );
 $idEncrip = '000000'.$idPrestamo;
 $idEncrip = substr($idEncrip, -7);
 //echo $base58->encode($idEncrip);
