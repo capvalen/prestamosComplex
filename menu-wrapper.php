@@ -28,7 +28,7 @@ $nomArchivo = basename($_SERVER['PHP_SELF']); ?>
 		</li>
 		<?php if( $_COOKIE['ckPower']==1){ ?>
 		<li <?php if($nomArchivo =='usuarios.php') echo 'class="active"'; ?>>
-				<a href="#!"><i class="icofont-users"></i> Usuarios</a>
+				<a href="usuarios.php"><i class="icofont-users"></i> Usuarios</a>
 		</li>
 		<li <?php if($nomArchivo =='configuraciones.php') echo 'class="active"'; ?>>
 				<a href="configuraciones.php"><i class="icofont-settings"></i> Configuraciones</a>
