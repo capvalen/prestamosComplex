@@ -101,7 +101,7 @@ $base58 = new StephenHill\Base58();
 
 				if( $respuestaInv=$conection->query($sqlInv) ){
 					while( $rowInv=$respuestaInv->fetch_assoc() ){  ?>
-						<li class="mayuscula"><a href="clientes.php?idCliente=<?= $base58->encode(substr('000000'.$rowInv['idCliente'], -7));?>"><?= $rowInv['datosCliente']; ?></a></li>
+						<li class="mayuscula"><a href="clientes.php?idCliente=<?= $base58->encode(substr('000000'.$rowInv['idCliente'], -7));?>"><?= $rowInv['datosCliente']."(".$rowInv['tipcDescripcion'].")"; ?></a></li>
 			<?php }
 				}
 			?>
@@ -118,8 +118,11 @@ $base58 = new StephenHill\Base58();
 			<?php endif; ?>
 
 			<?php if(isset($_GET['credito']) && $rowCr['presAprobado']<> 'Sin aprobar' && $rowCr['presAprobado']<> "Rechazado" && $rowCr['presFechaDesembolso']=='Desembolso pendiente' && in_array($_COOKIE['ckPower'], $soloAdmis)): ?>
-				<button class="btn btn-warning btn-outline btn-lg" id="btnDesembolsar"><i class="icofont-money"></i> Desembolsar</button>				
-			<?php endif; ?>
+				<button class="btn btn-warning btn-outline btn-lg" id="btnDesembolsar"><i class="icofont-money"></i> Desembolsar</button>
+			<?php endif;
+				if(isset($_GET['credito']) && $rowCr['presAprobado']<> 'Sin aprobar' && $rowCr['presAprobado']<> "Rechazado" && $rowCr['presFechaDesembolso']<>'Desembolso pendiente' && in_array($_COOKIE['ckPower'], $soloAdmis)): ?>
+				<button class="btn btn-infocat btn-outline btn-lg" id="btnsolicitarDeuda"><i class="icofont-money"></i> Realizar un pago</button>
+				<?php endif; ?>
 			</div>
 			<hr>
 
@@ -171,14 +174,14 @@ $base58 = new StephenHill\Base58();
 		<!-- </table> -->
 
 		<?php else: ?>
-		<h3 class="purple-text text-lighten-1">Crear solicitud de préstamo <small><?php print $_COOKIE["ckAtiende"]; ?></small></h3><hr>
+		<h3 class="purple-text text-lighten-1">Zona créditos <small><?php print $_COOKIE["ckAtiende"]; ?></small></h3><hr>
 			
 			<div class="panel panel-default">
 				<div class="panel-body">
-				<p><strong>Filtro de clientes:</strong></p>
+				<p><strong>Filtro de créditos:</strong></p>
 					<div class="row">
 						<div class="col-xs-6 col-sm-3">
-							<input type="text" id="txtAddCliente" class="form-control">
+							<input type="text" id="txtAddCliente" class="form-control" placeholder="CR-00...">
 						</div>
 						<div class="col-xs-3">
 							<button class="btn btn-primary btn-outline" id="btnBuscarClientesDni"><i class="icofont-search-1"></i> Buscar</button>
@@ -600,6 +603,11 @@ $('#btnPagarCreditoCompleto').click(function() {
 		if(resp==true){
 			location.reload();
 		}
+	});
+});
+$('#btnsolicitarDeuda').click(function() {
+	$.ajax({url: 'php/solicitarDeudasHoy.php', type: 'POST', data: { credito: '<?= $_GET['credito']; ?>' }}).done(function(resp) {
+		console.log(resp)
 	});
 });
 <?php } ?>
