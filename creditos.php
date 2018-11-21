@@ -121,7 +121,7 @@ $base58 = new StephenHill\Base58();
 				<button class="btn btn-warning btn-outline btn-lg" id="btnDesembolsar"><i class="icofont-money"></i> Desembolsar</button>
 			<?php endif;
 				if(isset($_GET['credito']) && $rowCr['presAprobado']<> 'Sin aprobar' && $rowCr['presAprobado']<> "Rechazado" && $rowCr['presFechaDesembolso']<>'Desembolso pendiente' && in_array($_COOKIE['ckPower'], $soloAdmis)): ?>
-				<button class="btn btn-infocat btn-outline btn-lg" id="btnsolicitarDeuda"><i class="icofont-money"></i> Realizar un pago</button>
+				<button class="btn btn-infocat btn-outline btn-lg" id="btnsolicitarDeuda"><i class="icofont-money"></i> Pago global</button>
 				<?php endif; ?>
 			</div>
 			<hr>
@@ -291,6 +291,38 @@ $base58 = new StephenHill\Base58();
 	</div>
 	</div>
 </div>
+
+<?php if(isset($_GET['credito']) && $rowCr['presAprobado']<> 'Sin aprobar' && $rowCr['presAprobado']<> "Rechazado" && $rowCr['presFechaDesembolso']<>'Desembolso pendiente' && in_array($_COOKIE['ckPower'], $soloAdmis)): ?>
+<!-- Modal para realizar un pago automtico combo -->
+<div class="modal fade" id="mostrarRealizarPagoCombo" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+<div class="modal-dialog modal-sm" role="document">
+	<div class="modal-content">
+		<div class="modal-header-infocat">
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			<h4 class="modal-title" id="myModalLabel"><i class="icofont icofont-help-robot"></i> Deudas pendientes</h4>
+		</div>
+		<div class="modal-body">
+			<p>Los siguientes cálculos son calculados al día de hoy:</p>
+			<div style="padding-left:20px">
+				<p>Cuotas pendientes: <strong><span id="spaCPendientes"></span></strong></p>
+				<p>Días de mora: <strong><span id="spaCMora"></span></strong></p>
+				<p>Precio de cuota: <strong>S/ <span id="spaCPrecioCuota"></span></strong></p>
+				<p>Precio de mora: <strong>S/ <span id="spaCPrecioMora"></span></strong></p>
+				<hr style="margin-top: 10px; margin-bottom: 10px; border-top: 1px solid #c1c1c1;margin-right: 50px;">
+				<p>Pago total: <strong>S/ <span id="spaCTotal"></span></strong></p>
+			</div>
+			<div class="">
+				<label for="">¿Cuánto dinero dispone el cliente?</label>
+				<input type="number" class="form-control input-lg text-center inputGrande esMoneda" id="txtPagaClienteVariable" style="margin: 0;">
+			</div>
+		</div>
+		<div class="modal-footer">
+			<button class="btn btn-infocat btn-outline"><i class="icofont-ui-rate-add"></i> Realizar depósito</button>
+		</div>
+	</div>
+	</div>
+</div>
+<?php endif; ?>
 
 <?php include 'footer.php'; ?>
 <script src="js/bootstrap-material-datetimepicker.js?version=2.0.1"></script>
@@ -607,7 +639,22 @@ $('#btnPagarCreditoCompleto').click(function() {
 });
 $('#btnsolicitarDeuda').click(function() {
 	$.ajax({url: 'php/solicitarDeudasHoy.php', type: 'POST', data: { credito: '<?= $_GET['credito']; ?>' }}).done(function(resp) {
-		console.log(resp)
+		console.log(resp);
+		var data=JSON.parse(resp);
+		if(data.diasMora==0){
+			$('#spaCMora').parent().parent().addClass("hidden");
+			$('#spaCPrecioMora').parent().parent().addClass("hidden");
+		}else{
+			$('#spaCMora').parent().parent().removeClass("hidden");
+			$('#spaCPrecioMora').parent().parent().removeClass("hidden");
+		}
+		$('#spaCPendientes').text(data.tantasCuotas);
+		$('#spaCMora').text(data.diasMora);
+		$('#spaCPrecioCuota').text(data.precioCuotas.toFixed(2));
+		$('#spaCPrecioMora').text(data.precioMora.toFixed(2));
+		$('#spaCTotal').text(data.paraFinalizar.toFixed(2));
+		$('#mostrarRealizarPagoCombo').modal('show');
+		
 	});
 });
 <?php } ?>

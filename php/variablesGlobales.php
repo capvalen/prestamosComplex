@@ -16,7 +16,7 @@ while($row=$resultado->fetch_row()){
   $i++;
 }
 
-$mora= $variablesG[6][2];
+$mora= floatval($variablesG[6][2]);
 
 
 

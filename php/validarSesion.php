@@ -7,9 +7,9 @@ include 'conkarl.php';
 $clavePrivada= 'Es sencillo hacer que las cosas sean complicadas, pero difícil hacer que sean sencillas. Friedrich Nietzsche';
 
 $fila = array(); $i=0;
+//echo "select * from  usuario u inner join sucursal s on s.idSucursal=u.idSucursal where usuNick = '".$_POST['user']."' and usuPass='".md5($_POST['pws'])."' and usuActivo=1;";
 
 $log = mysqli_query($conection,"select * from  usuario u inner join sucursal s on s.idSucursal=u.idSucursal where usuNick = '".$_POST['user']."' and usuPass='".md5($_POST['pws'])."' and usuActivo=1;");
-
 $row = mysqli_fetch_array($log, MYSQLI_ASSOC);
 if ($row['idUsuario']>=1){
 	
