@@ -152,7 +152,7 @@ $base58 = new StephenHill\Base58();
 					<td><?php if($rowCuot['cuotCuota']=='0.00' && $rowCuot['cuotPago']=='0.00'): echo "Desembolso"; elseif($rowCuot['cuotFechaCancelacion']=='0000-00-00'): echo 'Pendiente'; else: echo $rowCuot['cuotFechaCancelacion']; endif;  ?></td>
 					<td><?= number_format($rowCuot['cuotPago'],2); ?></td>
 					<td><?= number_format($rowCuot['cuotSaldo'],2); ?></td>
-					<td><?php if( in_array($_COOKIE['ckPower'], $soloAdmis) &&  $rowCuot['cuotPago']=='0.00' && $rowCr['presFechaDesembolso']<>'Desembolso pendiente' && $k>=1):
+					<td><?php if( in_array($_COOKIE['ckPower'], $soloAdmis) &&  $rowCuot['idTipoPrestamo']=='79' && $rowCr['presFechaDesembolso']<>'Desembolso pendiente' && $k>=1):
 						?> <button class="btn btn-primary btn-outline btn-sm btnPagarCuota"><i class="icofont-money"></i> Pagar</button> <?php
 					endif;
 					if($rowCuot['cuotPago']<>'0.00' && $rowCr['presFechaDesembolso']<>'Desembolso pendiente'): 
@@ -305,8 +305,9 @@ $base58 = new StephenHill\Base58();
 			<p>Los siguientes cálculos son calculados al día de hoy:</p>
 			<div style="padding-left:20px">
 				<p>Cuotas pendientes: <strong><span id="spaCPendientes"></span></strong></p>
-				<p>Días de mora: <strong><span id="spaCMora"></span></strong></p>
+				<p>Costo de cuota: <strong><span id="spaCCosto"></span></strong></p>
 				<p>Precio de cuota: <strong>S/ <span id="spaCPrecioCuota"></span></strong></p>
+				<p>Días de mora: <strong><span id="spaCMora"></span></strong></p>
 				<p>Precio de mora: <strong>S/ <span id="spaCPrecioMora"></span></strong></p>
 				<hr style="margin-top: 10px; margin-bottom: 10px; border-top: 1px solid #c1c1c1;margin-right: 50px;">
 				<p>Pago total: <strong>S/ <span id="spaCTotal"></span></strong></p>
@@ -317,7 +318,7 @@ $base58 = new StephenHill\Base58();
 			</div>
 		</div>
 		<div class="modal-footer">
-			<button class="btn btn-infocat btn-outline"><i class="icofont-ui-rate-add"></i> Realizar depósito</button>
+			<button class="btn btn-infocat btn-outline" id="btnRealizarDeposito"><i class="icofont-ui-rate-add"></i> Realizar depósito</button>
 		</div>
 	</div>
 	</div>
@@ -649,12 +650,18 @@ $('#btnsolicitarDeuda').click(function() {
 			$('#spaCPrecioMora').parent().parent().removeClass("hidden");
 		}
 		$('#spaCPendientes').text(data.tantasCuotas);
+		$('#spaCCosto').text(data.precioCuotas.toFixed(2));
 		$('#spaCMora').text(data.diasMora);
-		$('#spaCPrecioCuota').text(data.precioCuotas.toFixed(2));
+		$('#spaCPrecioCuota').text(data.deudaCuotas.toFixed(2));
 		$('#spaCPrecioMora').text(data.precioMora.toFixed(2));
 		$('#spaCTotal').text(data.paraFinalizar.toFixed(2));
 		$('#mostrarRealizarPagoCombo').modal('show');
 		
+	});
+});
+$('#btnRealizarDeposito').click(function() {
+	$.ajax({url: 'php/pagarCreditoCombo.php', type: 'POST', data: {credito: '<?= $_GET['credito'];?>', dinero: $('#txtPagaClienteVariable').val() }}).done(function(resp) {
+		console.log(resp)
 	});
 });
 <?php } ?>
