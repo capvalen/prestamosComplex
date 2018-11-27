@@ -6,7 +6,9 @@ require_once('vendor/autoload.php');
 include "php/variablesGlobales.php";
 $base58 = new StephenHill\Base58();
 
- ?>
+$fechaHoy = new DateTime();
+
+?>
 <!DOCTYPE html>
 <html lang="es">
 
@@ -113,7 +115,7 @@ $base58 = new StephenHill\Base58();
 			<div class="container row" id="rowBotonesMaestros">
 				<button class="btn btn-negro btn-outline btn-lg " id="btnImpresionPrevia" data-pre="<?= $_GET['credito'];?>"><i class="icofont-print"></i> Imprimir cronograma</button>
 			<?php if(isset($_GET['credito']) && $rowCr['presAprobado']== 'Sin aprobar'): ?>
-				<button class="btn btn-success btn-outline btn-lg" id="btnShowVerificarCredito"><i class="icofont-check-circled"></i> Verificar crédito</button>
+				<button class="btn btn-success btn-outline btn-lg" id="btnShowVerificarCredito"><i class="icofont-check-circled"></i> Aprobar crédito</button>
 				<button class="btn btn-danger btn-outline btn-lg" id="btnDenyVerificarCredito"><i class="icofont-thumbs-down"></i> Denegar crédito</button>
 			<?php endif; ?>
 
@@ -153,16 +155,27 @@ $base58 = new StephenHill\Base58();
 					<td><?= number_format($rowCuot['cuotPago'],2); ?></td>
 					<td><?= number_format($rowCuot['cuotSaldo'],2); ?></td>
 					<td><?php if( in_array($_COOKIE['ckPower'], $soloAdmis) &&  $rowCuot['idTipoPrestamo']=='79' && $rowCr['presFechaDesembolso']<>'Desembolso pendiente' && $k>=1):
-						?> <button class="btn btn-primary btn-outline btn-sm btnPagarCuota"><i class="icofont-money"></i> Pagar</button> <?php
+					$diasDebe2=$fechaHoy ->diff($fechaCu);
+						if( floatval($diasDebe2->format('%R%a')) < 0 ){
+						?> <p class="red-text text-darken-1">Cuota fuera de fecha</p>
+						<!-- <button class="btn btn-primary btn-outline btn-sm btnPagarCuota"><i class="icofont-money"></i> Pagar</button> --> <?php
+						}
 					endif;
 					if($rowCuot['cuotPago']<>'0.00' && $rowCr['presFechaDesembolso']<>'Desembolso pendiente'): 
-						?> <button class="btn btn-success btn-outline btn-sm" disabled><i class="icofont-verification-check"></i></button> <?php
+						if( $rowCuot['idTipoPrestamo'] ==33 ){ ?>
+							<button class="btn btn-warning btn-outline btn-sm mitoolTip" data-toggle="tooltip" title="Pago parcial"><i class="icofont-warning-alt"></i></button>
+						<? } if($rowCuot['idTipoPrestamo'] ==80){
+						?> <button class="btn btn-success btn-outline btn-sm mitoolTip" data-toggle="tooltip" title="Pago completo"><i class="icofont-verification-check"></i></button> <?php
+						}
 					endif;?> </td>
 				</tr>
 			<?php $k++; }
 			} ?>
 				</tbody>
 			</table>
+			<div class="row">
+			<?php $_POST['credito']=$_GET['credito']; include 'php/listarOtrospagos.php'; ?>
+			</div>
 
 		</div><!-- Fin de contenedorCreditosFluid -->
 			
@@ -306,9 +319,9 @@ $base58 = new StephenHill\Base58();
 			<div style="padding-left:20px">
 				<p>Cuotas pendientes: <strong><span id="spaCPendientes"></span></strong></p>
 				<p>Costo de cuota: <strong><span id="spaCCosto"></span></strong></p>
-				<p>Precio de cuota: <strong>S/ <span id="spaCPrecioCuota"></span></strong></p>
+				<p>Cuota: <strong>S/ <span id="spaCPrecioCuota"></span></strong></p>
 				<p>Días de mora: <strong><span id="spaCMora"></span></strong></p>
-				<p>Precio de mora: <strong>S/ <span id="spaCPrecioMora"></span></strong></p>
+				<p>Mora: <strong>S/ <span id="spaCPrecioMora"></span></strong></p>
 				<hr style="margin-top: 10px; margin-bottom: 10px; border-top: 1px solid #c1c1c1;margin-right: 50px;">
 				<p>Pago total: <strong>S/ <span id="spaCTotal"></span></strong></p>
 			</div>
@@ -318,6 +331,7 @@ $base58 = new StephenHill\Base58();
 			</div>
 		</div>
 		<div class="modal-footer">
+			<div class="divError text-left animated fadeIn hidden" style="margin-bottom: 20px;"><i class="icofont-cat-alt-2"></i> Lo sentimos, <span class="spanError">La cantidad de ingresada no puede ser cero o negativo.</span></div>
 			<button class="btn btn-infocat btn-outline" id="btnRealizarDeposito"><i class="icofont-ui-rate-add"></i> Realizar depósito</button>
 		</div>
 	</div>
@@ -334,6 +348,7 @@ $base58 = new StephenHill\Base58();
 <script>
 datosUsuario();
 $('.selectpicker').selectpicker();
+$('.mitoolTip').tooltip();
 
 $(document).ready(function(){
 <?php
@@ -639,7 +654,7 @@ $('#btnPagarCreditoCompleto').click(function() {
 	});
 });
 $('#btnsolicitarDeuda').click(function() {
-	$.ajax({url: 'php/solicitarDeudasHoy.php', type: 'POST', data: { credito: '<?= $_GET['credito']; ?>' }}).done(function(resp) {
+	$.ajax({url: 'php/solicitarDeudasHoy.php', type: 'POST', data: { credito: '<?php if(isset ($_GET['credito'])){echo $_GET['credito'];}else{echo '';}; ?>' }}).done(function(resp) {
 		console.log(resp);
 		var data=JSON.parse(resp);
 		if(data.diasMora==0){
@@ -660,9 +675,18 @@ $('#btnsolicitarDeuda').click(function() {
 	});
 });
 $('#btnRealizarDeposito').click(function() {
-	$.ajax({url: 'php/pagarCreditoCombo.php', type: 'POST', data: {credito: '<?= $_GET['credito'];?>', dinero: $('#txtPagaClienteVariable').val() }}).done(function(resp) {
-		console.log(resp)
-	});
+	if( $('#txtPagaClienteVariable').val()<=0 ){
+		$('#mostrarRealizarPagoCombo .divError').removeClass('hidden').find('.spanError').text('No se permiten valores negativos o ceros.');
+	}else if($('#txtPagaClienteVariable').val() > $('#spaCTotal').text()  ){
+		$('#mostrarRealizarPagoCombo .divError').removeClass('hidden').find('.spanError').html('El monto máximo que se puede depositar es <strong>S/ '+$('#spaCTotal').text()+'</strong> .');
+	}else{
+		$.ajax({url: 'php/pagarCreditoCombo.php', type: 'POST', data: {credito: '<?php if(isset ($_GET['credito'])){echo $_GET['credito'];}else{echo '';}; ?>', dinero: $('#txtPagaClienteVariable').val() }}).done(function(resp) {
+			console.log(resp)
+			if(resp==true){
+				location.reload();
+			}
+		});
+	}
 });
 <?php } ?>
 </script>

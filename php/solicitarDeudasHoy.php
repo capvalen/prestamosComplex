@@ -13,20 +13,20 @@ $sumaSa=0;
 $diasMora =0;
 $precioCuota=0;
 
-$sql="SELECT idCuota, cuotFechaPago, cuotCuota FROM `prestamo_cuotas`
-where cuotFechaPago <=curdate() and cuotCuota<>0 and idTipoPrestamo=79
+$sql="SELECT idCuota, cuotFechaPago, cuotCuota, cuotPago FROM `prestamo_cuotas`
+where cuotFechaPago <=curdate() and cuotCuota<>0 and idTipoPrestamo in (33, 79)
 and idPrestamo={$base58->decode($_POST['credito'])}
 order by cuotFechaPago asc;";
 
 $resultado=$cadena->query($sql);
 while($row=$resultado->fetch_assoc()){
-	$precioCuota=floatval($row['cuotCuota']);
+	$precioCuota=floatval($row['cuotCuota']-$row['cuotPago']);
 	$fechaCuota = new DateTime($row['cuotFechaPago']);
 	$diasDebe=$fechaHoy ->diff($fechaCuota);
 	$restaDias= floatval($diasDebe->format('%a'));
 
-	$sumaSa+=floatval($row['cuotCuota']);
-
+	$sumaSa+=floatval($precioCuota);
+//echo $restaDias."\n";
 	if($restaDias>0){
 		//sumar Dia y Mora
 		if($k==0){
@@ -39,8 +39,9 @@ while($row=$resultado->fetch_assoc()){
 		// 	mora=>$mora
 		// ));
 		// $sumaSa+=(floatval($row['cuotCuota'])+$mora*$restaDias);
-	}else{
-		$diasMora -= 1;
+	}
+	//else{
+	//	$diasMora -= 1;
 		//  sólo sumar día
 		//$filas[$k]=
 		// array_push($filas, array(
@@ -50,13 +51,14 @@ while($row=$resultado->fetch_assoc()){
 		// 	mora=>0
 		// ));
 		// $sumaSa+=floatval($row['cuotCuota']);
-	}
+	//}
 
 	$k++;
 }
 // echo "Total de días de mora: ". $diasMora;
 // echo "Suma total: ".$sumaSa;
 // echo "El cliente debe pagar para finalizar:".($sumaSa+ $diasMora*$mora );
+//if($diasMora<>0){$diasMora-=1;}
 $filas = array(
 	'tantasCuotas'=> $k,
 	'precioCuotas'=> $precioCuota,
