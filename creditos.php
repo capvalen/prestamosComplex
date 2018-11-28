@@ -159,6 +159,8 @@ $fechaHoy = new DateTime();
 						if( floatval($diasDebe2->format('%R%a')) < 0 ){
 						?> <p class="red-text text-darken-1">Cuota fuera de fecha</p>
 						<!-- <button class="btn btn-primary btn-outline btn-sm btnPagarCuota"><i class="icofont-money"></i> Pagar</button> --> <?php
+						}else{
+							?> <p class="red-text text-darken-1">Cuota fuera de fecha</p><?php
 						}
 					endif;
 					if($rowCuot['cuotPago']<>'0.00' && $rowCr['presFechaDesembolso']<>'Desembolso pendiente'): 
