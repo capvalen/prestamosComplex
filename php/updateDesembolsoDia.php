@@ -8,8 +8,15 @@ $base58 = new StephenHill\Base58();
 
 $idPrestamo = $base58->decode($_POST['credito']);
 
-$sqlDesembolso= "UPDATE `prestamo` SET `presFechaDesembolso`=now() WHERE `idPrestamo`={$idPrestamo};";
-$respDesemb= $cadena->query($sqlDesembolso);
+$sqlDesembolso= "UPDATE `prestamo` SET `presFechaDesembolso`=now() WHERE `idPrestamo`={$idPrestamo};
+INSERT INTO `caja`(`idCaja`, `idPrestamo`, `idCuota`, `idTipoProceso`, `cajaFecha`, `cajaValor`, `cajaObservacion`, `cajaMoneda`, `cajaActivo`, `idUsuario`, `idAprueba`) 
+select null,{$idPrestamo},0,43,now(),`presMontoDesembolso`,'<a href=creditos.php?credito={$_POST['credito']}>CR-{$idPrestamo}</a>',1,1,{$_COOKIE['ckidUsuario']},0
+from prestamo 
+where `idPrestamo`={$idPrestamo}
+";
+
+$respDesemb= $cadena->multi_query($sqlDesembolso);
+
 
 
 $sqlCabecera = "SELECT `presMontoDesembolso`, `presPeriodo`, `idTipoPrestamo` FROM `prestamo` WHERE `idPrestamo`={$idPrestamo};";

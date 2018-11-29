@@ -9,7 +9,7 @@ $boton='';
 $i=0;
 
 if($totalRow==0){
-	echo "<tr> <th scope='row'></th> <td >No se encontraron resultados en ésta fecha.</td> <td class='mayuscula'></td> <td></td> <td>S/ <span id='strSumaEntrada'>0.00</span></td></tr>";
+	echo "<tr> <th scope='row'></th> <td >No se encontraron resultados en ésta fecha.</td> <td class='mayuscula'></td> <td>S/ <span id='strSumaEntrada'>0.00</span></td></tr>";
 }else{
 	while($row = mysqli_fetch_array($sql, MYSQLI_ASSOC))
 	{

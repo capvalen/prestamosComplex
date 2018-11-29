@@ -144,3 +144,7 @@ $('#liDatosPersonales').mouseenter(function() {
 $('#liDatosPersonales').mouseleave(function() {
 	$(this).removeClass('open');
 });
+function pantallaOver(tipo) {
+	if(tipo){$('#overlay').css('display', 'initial');}
+	else{ $('#overlay').css('display', 'none'); }
+}

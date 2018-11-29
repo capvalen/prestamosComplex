@@ -345,7 +345,7 @@ $('#btnCajaAbrir').click(function () {
 });
 $('#btnGuardarApertura').click(function () {
 	pantallaOver(true);
-	var monto = parseFloat($('#txtMontoApertura').attr('data-val'));
+	var monto = parseFloat($('#txtMontoApertura').val());
 	var obs = $('#txtObsApertura').val();
 
 	if( $('#txtMontoApertura').val() == '' || monto <0){
@@ -489,8 +489,8 @@ $('.btnEditarCajaMaestra').click(function() {
 	$('.modal-cajaMaestra').modal('show');
 });
 $('#btnUpdateCajaMaestra').click(function() {
-	var idProc= $('#cmbEstadoPagos2').find('.selected a').attr('data-tokens');
-	var mone = $('#divCmbMetodoPago2').find('.selected a').attr('data-tokens');
+	var idProc= $('#cmbEstadoPagos2 .optPagos:contains("'+$('#spTipoPago2').val()+'")').attr('data-tokens');
+	var mone = $('#divCmbMetodoPago2 .optMoneda:contains("'+$('#sltMetodopago2').val()+'")').attr('data-tokens');
 	var padre = $(this).parent().parent();
 	$.ajax({url: 'php/actualizarCaja.php', type: 'POST', data: { 
 		idCaj: $('#btnUpdateCajaMaestra').attr('data-caja'),
