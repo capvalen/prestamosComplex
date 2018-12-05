@@ -94,7 +94,7 @@
 
 <!-- Modal para decir que hubo un error  -->
 <div class="modal fade" id="modalNewCliente" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
-<div class="modal-dialog " role="document">
+<div class="modal-dialog modal-lg" role="document">
 	<div class="modal-content">
 		<div class="modal-header-infocat">
 			<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -109,29 +109,35 @@
 				</div>
 				</div>
 				<div class="row">
-					<div class="col-xs-6"><span class="obligatorio">*</span> <label for="">Apellido paterno</label><input type="text" id="txtPaternoCliente" class="form-control"></div>
-					<div class="col-xs-6"><span class="obligatorio">*</span> <label for="">Apellido materno</label><input type="text" id="txtMaternoCliente" class="form-control"></div>
+					<div class="col-xs-4"><span class="obligatorio">*</span> <label for="">Apellido paterno</label><input type="text" id="txtPaternoCliente" class="form-control"></div>
+					<div class="col-xs-4"><span class="obligatorio">*</span> <label for="">Apellido materno</label><input type="text" id="txtMaternoCliente" class="form-control"></div>
+					<div class="col-xs-4"><label for="">Nombres</label> <input type="text" id="txtNombresCliente" class='form-control'></div>
 				</div>
 				<div class="row">
-				<div class="col-xs-6"><label for="">Nombres</label> <input type="text" id="txtNombresCliente" class='form-control'></div>
-				<div class="col-xs-6"><label for="">Sexo</label>
-					<select class="selectpicker" id="sltSexo" title="Seleccione un sexo" data-width="100%" data-live-search="true" data-size="15">
-						<option value="0">Femenino</option>
-						<option value="1">Masculino</option>
-					</select>
-				</div>
-				</div>
-				<div class="row">
-					<div class="col-xs-6">
-					<label for="">Estado civil</label>
-					<select class="selectpicker" title="Estados civiles" id="sltEstadoCivil" data-width="100%" data-live-search="true" data-size="15">
-						<?php include 'OPTEstadoCivil.php'; ?>
-					</select>
+					<div class="col-xs-4"><label for="">Sexo</label>
+						<select class="selectpicker" id="sltSexo" title="Seleccione un sexo" data-width="100%" data-live-search="true" data-size="15">
+							<option value="0">Femenino</option>
+							<option value="1">Masculino</option>
+						</select>
 					</div>
-					<div class="col-xs-6">
+			
+					<div class="col-xs-4">
+						<label for="">Estado civil</label>
+						<select class="selectpicker" title="Estado civil" id="sltEstadoCivil" data-width="100%" data-live-search="true" data-size="15">
+							<?php include 'OPTEstadoCivil.php'; ?>
+						</select>
+					</div>
+					<div class="col-xs-4">
 						<label for="">N° de hijos dependientes</label>
 						<input type="number" class="form-control" value="0" id="txtNumHijos">
 					</div>
+				</div>
+				<div class="row container-fluid hidden" id="divSoloCasado">
+					<label for="">Anexar cónyugue</label>
+					<select class="selectpicker" title="Parejas solteras" id="sltBuscarPareja" data-width="100%" data-live-search="true" data-size="15">
+						<option value="0">Busque al cliente</option>
+					</select>
+					
 				</div>
 				<div class="row container-fluid" id="divDireccionCasa">
 					<label for="">Dirección domiciliar</label>
@@ -142,7 +148,7 @@
 						<div class="col-xs-4"><select class="selectpicker" title="Zona" id="sltDireccionExtra" data-width="100%" data-live-search="true" data-size="15"><?php include 'php/OPTZona.php'; ?></select></div>
 						<div class="col-xs-12"><input type="text" id='txtReferenciaCasa' class='form-control' placeholder='Referencia de la casa'></div>
 						<div class="col-xs-4" id="divDepartamentos"><select id="slpDepartamentos" class="selectpicker" data-width="100%" data-live-search="true"  data-size="15" title="Departamento"><?php include 'php/OPTDepartamento.php'; ?></select></div>
-						<div class="col-xs-4" id="idProvincias"><select id="slpProvincias" class="selectpicker" data-width="100%" data-live-search="true"  title="Ciudad"></select></div>
+						<div class="col-xs-4" id="idProvincias"><select id="slpProvincias" class="selectpicker" data-width="100%" data-live-search="true" title="Provincia"></select></div>
 						<div class="col-xs-4" id="idDistritos"><select id="slpDistritos" class="selectpicker" data-width="100%" data-live-search="true" title="Distrito"></select></div>
 					</div>
 					<div class="checkbox checkbox-infocat checkbox-circle">
@@ -151,14 +157,15 @@
 					</div>
 				</div>
 				<div class="row container-fluid hidden" id="divDireccionNegocio">
+				<label style="display: table;">Dirección de negocio</label>
 					<div class="col-xs-4" id="divCallesNeg"><select id="slpCallesNeg" class="selectpicker" data-width="100%" data-live-search="true"  data-size="15" title="Calle"><?php include 'php/OPTCalles.php'; ?></select></div>
-				    <label style="display: table;">Dirección de negocio</label>
-				    <div class="col-xs-12 col-sm-6"><input type="text" class="form-control" id="txtDireccionNegocio" placeholder='Dirección de negocio'></div>
+				    
+				    <div class="col-xs-12 col-sm-8"><input type="text" class="form-control" id="txtDireccionNegocio" placeholder='Dirección de negocio'></div>
 						<div class="col-xs-4"><input type="text" class="form-control" id="txtNumeroNegoc" placeholder='#'></div>
 						<div class="col-xs-4"><select class="selectpicker" title="Zona" id="sltDireccionExtraNegoc" data-width="100%" data-live-search="true" data-size="15"><?php include 'php/OPTZona.php'; ?></select></div>
 						<div class="col-xs-12"><input type="text" id='txtReferenciaNegoc' class='form-control' placeholder='Referencia del negocio'></div>
 						<div class="col-xs-4" id="divDepartamentosNegoc"><select id="slpDepartamentosNegoc" class="selectpicker" data-width="100%" data-live-search="true"  data-size="15" title="Departamento"><?php include 'php/OPTDepartamento.php'; ?></select></div>
-						<div class="col-xs-4" id="idProvinciasNegoc"><select id="slpProvinciasNegoc" class="selectpicker" data-width="100%" data-live-search="true"  title="Ciudad"></select></div>
+						<div class="col-xs-4" id="idProvinciasNegoc"><select id="slpProvinciasNegoc" class="selectpicker" data-width="100%" data-live-search="true"  title="Provincia"></select></div>
 						<div class="col-xs-4" id="idDistritosNegoc"><select id="slpDistritosNegoc" class="selectpicker" data-width="100%" data-live-search="true" title="Distrito"></select></div>
 				</div>
 				<div class="row">

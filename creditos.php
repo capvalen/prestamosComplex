@@ -5,10 +5,10 @@ include 'php/conkarl.php';
 require_once('vendor/autoload.php');
 include "php/variablesGlobales.php";
 $base58 = new StephenHill\Base58();
-
+$hayCaja= require_once("php/comprobarCajaHoy.php");
 $fechaHoy = new DateTime();
-
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -42,12 +42,13 @@ $fechaHoy = new DateTime();
 		<div class="row noselect">
 			<div class="col-lg-12 contenedorDeslizable ">
 			<!-- Empieza a meter contenido principal -->
-		<?php if( isset($_GET['credito']) ):
-			$codCredito=$base58->decode($_GET['credito']); ?>
+	<?php if( isset($_GET['credito']) ):
+		$codCredito=$base58->decode($_GET['credito']); ?>
 
 		<h3 class="purple-text text-lighten-1">Crédito CR-<?= $codCredito; ?></h3>
 
 	<?php
+
 	$sqlCr="SELECT presFechaAutom, presMontoDesembolso, presPeriodo, tpr.tpreDescipcion,
 	u.usuNombres,
 	case presFechaDesembolso when '0000-00-00 00:00:00' then 'Desembolso pendiente' else presFechaDesembolso end as `presFechaDesembolso`,
@@ -103,7 +104,7 @@ $fechaHoy = new DateTime();
 
 				if( $respuestaInv=$conection->query($sqlInv) ){
 					while( $rowInv=$respuestaInv->fetch_assoc() ){  ?>
-						<li class="mayuscula"><a href="clientes.php?idCliente=<?= $base58->encode(substr('000000'.$rowInv['idCliente'], -7));?>"><?= $rowInv['datosCliente']."(".$rowInv['tipcDescripcion'].")"; ?></a></li>
+						<li class="mayuscula"><a href="clientes.php?idCliente=<?= $base58->encode(substr('000000'.$rowInv['idCliente'], -7));?>"><span><?= $rowInv['datosCliente']; ?></span><?= " [".$rowInv['tipcDescripcion']."]"?></a></li>
 			<?php }
 				}
 			?>
@@ -119,12 +120,25 @@ $fechaHoy = new DateTime();
 				<button class="btn btn-danger btn-outline btn-lg" id="btnDenyVerificarCredito"><i class="icofont-thumbs-down"></i> Denegar crédito</button>
 			<?php endif; ?>
 
-			<?php if(isset($_GET['credito']) && $rowCr['presAprobado']<> 'Sin aprobar' && $rowCr['presAprobado']<> "Rechazado" && $rowCr['presFechaDesembolso']=='Desembolso pendiente' && in_array($_COOKIE['ckPower'], $soloAdmis)): ?>
+			<?php	if(isset($_GET['credito']) && $rowCr['presAprobado']<> 'Sin aprobar' && $rowCr['presAprobado']<> "Rechazado" && $rowCr['presFechaDesembolso']=='Desembolso pendiente' && in_array($_COOKIE['ckPower'], $soloAdmis)): ?>
+			<?php if( $hayCaja==true ): ?>
 				<button class="btn btn-warning btn-outline btn-lg" id="btnDesembolsar"><i class="icofont-money"></i> Desembolsar</button>
-			<?php endif;
-				if(isset($_GET['credito']) && $rowCr['presAprobado']<> 'Sin aprobar' && $rowCr['presAprobado']<> "Rechazado" && $rowCr['presFechaDesembolso']<>'Desembolso pendiente' && in_array($_COOKIE['ckPower'], $soloAdmis)): ?>
 				<button class="btn btn-infocat btn-outline btn-lg" id="btnsolicitarDeuda"><i class="icofont-money"></i> Pago global</button>
-				<?php endif; ?>
+			<?php else: ?> 
+				<div class="col-xs-12 col-md-7"><br>
+					<div class="alert alert-morado container-fluid" role="alert">
+						<div class="col-xs-4 col-sm-2 col-md-3">
+							<img src="images/ghost.png" alt="img-responsive" width="100%">
+						</div>
+						<div class="col-xs-8">
+							<strong>Alerta</strong> <p>No se encuentra ninguna caja aperturada.</p>
+							<a class="btn btn-default btn-lg btn-outline pull-left" href="caja.php" style="color:#333"><i class="icofont icofont-rounded-double-right"></i> Ir a caja</a>
+						</div>
+					</div>
+				</div>
+			<?php endif; //if de hay caja ?>
+			<?php endif; //if de soloadmins  ?>
+		
 			</div>
 			<hr>
 
@@ -160,16 +174,18 @@ $fechaHoy = new DateTime();
 						?> <p class="red-text text-darken-1">Cuota fuera de fecha</p>
 						<!-- <button class="btn btn-primary btn-outline btn-sm btnPagarCuota"><i class="icofont-money"></i> Pagar</button> --> <?php
 						}else{
-							?> <p class="red-text text-darken-1">Cuota fuera de fecha</p><?php
+							?> <p class="blue-text text-accent-2">Cuota en buena fecha</p><?php
 						}
-					endif;
-					if($rowCuot['cuotPago']<>'0.00' && $rowCr['presFechaDesembolso']<>'Desembolso pendiente'): 
-						if( $rowCuot['idTipoPrestamo'] ==33 ){ ?>
-							<button class="btn btn-warning btn-outline btn-sm mitoolTip" data-toggle="tooltip" title="Pago parcial"><i class="icofont-warning-alt"></i></button>
-						<? } if($rowCuot['idTipoPrestamo'] ==80){
-						?> <button class="btn btn-success btn-outline btn-sm mitoolTip" data-toggle="tooltip" title="Pago completo"><i class="icofont-verification-check"></i></button> <?php
-						}
-					endif;?> </td>
+						endif;
+						if($rowCuot['cuotPago']<>'0.00' && $rowCr['presFechaDesembolso']<>'Desembolso pendiente'): 
+							if( $rowCuot['idTipoPrestamo'] ==33 ){ ?>
+								<button class="btn btn-warning btn-outline btn-sm mitoolTip" data-toggle="tooltip" title="Pago parcial"><i class="icofont-warning-alt"></i></button>
+							<? }
+							if($rowCuot['idTipoPrestamo'] ==80){ ?>
+							<button class="btn btn-success btn-outline btn-sm mitoolTip" data-toggle="tooltip" title="Pago completo"><i class="icofont-verification-check"></i></button> <?php
+							}
+						endif;?>
+					</td>
 				</tr>
 			<?php $k++; }
 			} ?>
@@ -182,21 +198,63 @@ $fechaHoy = new DateTime();
 		</div><!-- Fin de contenedorCreditosFluid -->
 			
 
-		<?php else: ?>
+		<?php else: //else de contadorF!=0 ?>
 				<p>El código solicitado no está asociado a ningún crédito, revise el código o comuníquelo al área responsable. </p>
 		<?php endif; //Fin de if $contadorF 
 		} //Fin de if $respuesta 	?>
 		<!-- </table> -->
 
-		<?php else: ?>
-		<h3 class="purple-text text-lighten-1">Zona créditos <small><?php print $_COOKIE["ckAtiende"]; ?></small></h3><hr>
-			
+		<?php else: //else de si existe GET['credidto]
+		if(isset($_GET['record'])):
+			$idCli = $base58->decode($_GET['record']);
+			$_GET['idCliente'] = $_GET['record']; 
+			$sql="SELECT  `cliDni`, lower(`cliNombres`) as `cliNombres`, lower(`cliApellidoPaterno`) as `cliApellidoPaterno`, lower(`cliApellidoMaterno`) as `cliApellidoMaterno`
+			FROM `cliente` WHERE `idCliente`={$idCli} and `cliActivo`=1";
+			$resultado=$cadena->query($sql);
+			$row=$resultado->fetch_assoc();
+
+			?>
+			<h3 class="purple-text text-lighten-1">Record de créditos</h3><hr>
+				<p><strong>Código de cliente:</strong> <a href="clientes.php?idCliente=<?= $_GET['record']?>">CL-<?= $idCli; ?></a></p>
+				<p><strong>Nombres completos: </strong> <span class="mayuscula"><a href="clientes.php?idCliente=<?= $_GET['record']?>"><?= $row['cliApellidoPaterno'].' '.$row['cliApellidoMaterno'].", ".$row['cliNombres']; ?></a></span></p>
+				<p><strong>D.N.I.: </strong> <?= $row['cliDni']; ?></p>
+				<div class="container-fluid row">
+					<label for="">Préstamos solicitados:</label>
+					<div class="table-responsive">
+						<table class="table table-hover">
+							<thead>
+								<tr>
+									<th>Agencia</th>
+									<th>N° Crédito</th>
+									<th>Monto desembolsado</th>
+									<th>Cuota</th>
+									<th>Saldo k</th>
+									<th>Fecha de desembolso</th>
+									<th>Fecha de cancelación</th>
+									<th>Forma de pago</th>
+									<?php 
+									for ($i=0; $i < 15 ; $i++) { 
+										echo "<th>". ($i+1)."</th>";
+									}
+									?>
+								</tr>
+							</thead>
+							<tbody>
+								<?php include 'php/listarHistorialPagos.php' ?>
+							</tbody>
+						</table>
+					</div>
+
+		
+		<?php endif; //if de GET record
+		if(isset( $_GET['titular'])): ?>
+			<h3 class="purple-text text-lighten-1">Asignar crédito</h3><hr>
 			<div class="panel panel-default">
 				<div class="panel-body">
-				<p><strong>Filtro de créditos:</strong></p>
+				<p><strong>Involucrar más clientes:</strong></p>
 					<div class="row">
 						<div class="col-xs-6 col-sm-3">
-							<input type="text" id="txtAddCliente" class="form-control" placeholder="CR-00...">
+							<input type="text" id="txtAddCliente" class="form-control" placeholder="Apellidos o DNI">
 						</div>
 						<div class="col-xs-3">
 							<button class="btn btn-primary btn-outline" id="btnBuscarClientesDni"><i class="icofont-search-1"></i> Buscar</button>
@@ -205,7 +263,6 @@ $fechaHoy = new DateTime();
 				</div>
 			</div>
 
-		<?php if(isset( $_GET['titular'])): ?>
 			<div class="panel panel-default">
 				<div class="panel-body">
 					<p><strong>Involucrados</strong></p>
@@ -250,9 +307,11 @@ $fechaHoy = new DateTime();
 							<label for="">Fecha primer pago</label>
 							<input type="text" id="dtpFechaPrimerv3" class="form-control text-center" placeholder="Fecha para controlar citas" autocomplete="off">
 						</div>
+						
 						<div class="col-xs-6 col-sm-3">
 							<button class="btn btn-azul btn-lg btn-outline btnSinBorde" style="margin-top: 10px;" id="btnSimularPagos"><i class="icofont-support-faq"></i> Simular</button>
 							<button class="btn btn-infocat btn-lg btn-outline btnSinBorde" style="margin-top: 10px;" id="btnGuardarCred"><i class="icofont-save"></i> Guardar</button>
+						
 						</div>
 						<label class="orange-text text-darken-1 hidden" id="labelFaltaCombos" for=""><i class="icofont-warning"></i> Todas las casillas tienen que estar rellenadas para proceder</label>
 					</div>
@@ -272,8 +331,13 @@ $fechaHoy = new DateTime();
 				</table>
 				</div>
 			</div>
-		<?php endif; //fin de get titular ?>
-		<?php endif; //fin de get Credito ?>
+		
+			
+		<? endif; //fin de get titular ?>
+		<? endif; //fin de get Credito ?>
+		<? if( !isset($_GET['titular']) && !isset($_GET['credito']) && !isset($_GET['record']) ): ?>
+		<h3 class="purple-text text-lighten-1">Zona créditos</h3><hr>
+		<? endif; ?>
 				
 			<!-- Fin de contenido principal -->
 			</div>
@@ -541,10 +605,10 @@ function agregarClienteCanasta(idCl, cargo) { //console.log( idCl );
 });
 if(cargo==1){
 	$.ajax({url: 'php/listarMatrimonio.php', type: 'POST', data: { conyugue: idCl }}).done(function(resp) { //console.log(resp)
-		var datoMatri= JSON.parse(resp);
+		var datoMatri= JSON.parse(resp); console.log( idCl ); 
 		if(datoMatri.length==1){
 
-			if(datoMatri[0].idEsposo==idCl){
+			if(datoMatri[0].idEsposo==parseFloat(idCl)){
 			//	console.info('esposo') //listar a la esposa
 				agregarClienteCanasta(datoMatri[0].idEsposa, 2);
 			}else{
@@ -679,7 +743,7 @@ $('#btnsolicitarDeuda').click(function() {
 $('#btnRealizarDeposito').click(function() {
 	if( $('#txtPagaClienteVariable').val()<=0 ){
 		$('#mostrarRealizarPagoCombo .divError').removeClass('hidden').find('.spanError').text('No se permiten valores negativos o ceros.');
-	}else if($('#txtPagaClienteVariable').val() > $('#spaCTotal').text()  ){
+	}else if($('#txtPagaClienteVariable').val() > parseFloat($('#spaCTotal').text())  ){
 		$('#mostrarRealizarPagoCombo .divError').removeClass('hidden').find('.spanError').html('El monto máximo que se puede depositar es <strong>S/ '+$('#spaCTotal').text()+'</strong> .');
 	}else{
 		$.ajax({url: 'php/pagarCreditoCombo.php', type: 'POST', data: {credito: '<?php if(isset ($_GET['credito'])){echo $_GET['credito'];}else{echo '';}; ?>', dinero: $('#txtPagaClienteVariable').val() }}).done(function(resp) {

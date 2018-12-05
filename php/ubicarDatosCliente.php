@@ -1,7 +1,7 @@
 <?php 
 require("conkarl.php");
 
-$sql = mysqli_query($conection,"SELECT `idCliente`, `cliDni`, lower(`cliNombres`) as `cliNombres`, lower(`cliApellidoPaterno`) as `cliApellidoPaterno`, lower(`cliApellidoMaterno`) as `cliApellidoMaterno`, e.civDescripcion
+$sql = mysqli_query($conection,"SELECT `idCliente`, `cliDni`, lower(`cliNombres`) as `cliNombres`, lower(`cliApellidoPaterno`) as `cliApellidoPaterno`, lower(`cliApellidoMaterno`) as `cliApellidoMaterno`, e.civDescripcion, `cliDireccionesIgual`, `cliDireccionCasa`, `cliDireccionNegocio`
 FROM `cliente` c inner join estadocivil e on e.idEstadoCivil = c.`idEstadoCivil` WHERE `cliActivo`=1 and idCliente ='{$_POST['idCli']}';");
 
 $filas=array();

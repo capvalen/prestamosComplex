@@ -115,6 +115,7 @@ $base58 = new StephenHill\Base58();?>
 				</div>
 				<div class="col-sm-3">
 				<p><strong>Nombres:</strong> <span class="mayuscula"><?= $rowDato['cliNombres']; ?></span></p>
+				<p><strong>Cónyugue:</strong> <span id="pConyug"></span> </p>
 				</div>
 				</div> <!-- fin de row -->
 				<div class="container-fluid row">
@@ -129,34 +130,9 @@ $base58 = new StephenHill\Base58();?>
 					</div>
 				<?php endif; ?>
 				</div>
-				<hr>
-				<div class="container-fluid row">
-					<label for="">Préstamos solicitados:</label>
-					<div class="table-responsive">
-						<table class="table table-hover">
-							<thead>
-								<tr>
-									<th>Agencia</th>
-									<th>N° Crédito</th>
-									<th>Monto desembolsado</th>
-									<th>Cuota</th>
-									<th>Saldo k</th>
-									<th>Fecha de desembolso</th>
-									<th>Fecha de cancelación</th>
-									<th>Forma de pago</th>
-									<?php 
-									for ($i=0; $i < 15 ; $i++) { 
-										$j=$i+1;
-										echo "<th>". $j ."</th>";
-									}
-									?>
-								</tr>
-							</thead>
-							<tbody>
-								<?php include 'php/listarHistorialPagos.php' ?>
-							</tbody>
-						</table>
-					</div>
+				
+				<a class="btn btn-success btn-outline btn-lg btn-sinBorde" href="creditos.php?record=<?= $_GET['idCliente'];?>">Ver record del cliente</a>
+
 				</div>
 
 				<?php } ?>
@@ -205,6 +181,9 @@ datosUsuario();
 
 $(document).ready(function(){
 	$('.selectpicker').selectpicker();
+	<? if(isset($_GET['idCliente'])):?>
+	agregarClienteCanasta('<?= $idCli; ?>', 1);
+	<? endif;?>
 	$('#slpDepartamentos').change(function() {
 		var depa = $('.optDepartamento:contains("'+$('#slpDepartamentos').val()+'")').attr('data-tokens');  //$('#divDepartamentos').find('.selected a').attr('data-tokens');
 		$.ajax({url: 'php/OPTProvincia.php', type: 'POST', data: { depa: depa }}).done(function(resp) {
@@ -301,6 +280,30 @@ $('#btnFiltrarClientes').click(function() {
 		window.location.href = 'clientes.php';
 	}
 });
+$('#sltSexo').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
+	cargarDataPosiblesParejas() 
+});
+$('#sltEstadoCivil').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
+	cargarDataPosiblesParejas() 
+});
+function cargarDataPosiblesParejas() {
+	if( $('#sltEstadoCivil').val()==2 && $('#sltEstadoCivil').val()!='' ){
+		$('#divSoloCasado').removeClass('hidden');
+		var sexOpu = '';
+		if( $('#sltSexo').val()==0 ){
+			sexOpu = 1;
+		}else{
+			sexOpu = 0;
+		}
+		$.ajax({url: 'php/OPTListarClienteOpuesto.php', type: 'POST', data: { sexoContra: sexOpu}}).done(function(resp) { //console.log( resp );
+			$('#sltBuscarPareja').html(resp).selectpicker('refresh');
+		});
+	}
+	else{
+		$('#sltBuscarPareja').children().remove().selectpicker('refresh');
+		$('#divSoloCasado').addClass('hidden');
+	}
+}
 $('.btnLlamarEsposo').click(function() {
 	var id= $(this).attr('data-id')
 	var elId= $(this).attr('data-sex')
@@ -348,8 +351,73 @@ $('#btnGuardarConyugue').click(function() {
 	$.ajax({url: 'php/insertarMatrimonio.php', type: 'POST', data: {idDama: idDama,
 idVaron: idVaron }}).done(function(resp) {
 		console.log(resp)
+		location.reload();
 	});
 });
+function agregarClienteCanasta(idCl, cargo) { //console.log( idCl );
+
+if(cargo==1){
+	$.ajax({url: 'php/listarMatrimonio.php', type: 'POST', data: { conyugue: idCl }}).done(function(resp) { //console.log(resp)
+		var datoMatri= JSON.parse(resp);
+		if(datoMatri.length==1){
+
+			if(datoMatri[0].idEsposo==parseFloat(idCl)){
+			//	console.info('esposo') //listar a la esposa
+				agregarClienteCanasta(datoMatri[0].idEsposa, 2);
+			}else{
+				//console.info('esposa') //listar al esposo
+				agregarClienteCanasta(datoMatri[0].idEsposo, 2);
+			}
+		}else{
+			$('#pConyug').text('-');
+		}
+	});
+}else{
+	$.ajax({url: 'php/ubicarDatosCliente.php', type: 'POST', data: { idCli: idCl }}).done(function(resp2) { 
+		var dato = JSON.parse(resp2); //console.log( dato );
+		$.post('php/58encode.php', {texto: dato[0].idCliente }, function(resp) {
+			$('#pConyug').html(`<span class="mayuscula"><a href="clientes.php?idCliente=${resp}">${dato[0].cliApellidoPaterno} ${dato[0].cliApellidoMaterno} ${dato[0].cliNombres}</a> </span>`);
+		});
+		
+	});
+}
+}//fin de function
+
+$('#sltBuscarPareja').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
+  $.ajax({url: 'php/listarDireccionPareja.php', type: 'POST', data: { idCli: $('#sltBuscarPareja').val() }}).done(function(resp) {
+		var dato = JSON.parse(resp)[0];
+		console.log(dato)
+		$('#slpCalles').val(dato.idCalle).selectpicker('refresh');
+		$('#sltDireccionExtra').val(dato.idZona).selectpicker('refresh');
+
+		$('#slpDepartamentos').selectpicker('val', $('#slpDepartamentos .optDepartamento[data-tokens= "'+dato.idDepartamento+'" ]').text());
+		$('#slpProvincias').selectpicker('val', $('#slpProvincias .optProvincia[data-tokens= "'+dato.idProvincia+'" ]').text());
+		$('#slpDistritos').selectpicker('val', $('#slpDistritos .optDistrito[data-tokens= "'+dato.idDistrito+'" ]').text());
+
+		$('#txtDireccionCasa').val(dato.addrDireccion);
+		$('#txtNumeroCasa').val(dato.addrNumero);
+		$('#txtReferenciaCasa').val(dato.addrReferencia);
+		
+		if( dato.cliDireccionesIgual == 1 ){
+			$('#chkDireccion').prop('checked', true)
+		}else{
+			$('#chkDireccion').prop('checked', false)
+		}
+		$('#slpCallesNeg').val(dato.idCalle).selectpicker('refresh');
+		$('#sltDireccionExtraNegoc').val(dato.idZona).selectpicker('refresh');
+
+		$('#slpDepartamentosNegoc').selectpicker('val', $('#slpDepartamentos .optDepartamento[data-tokens= "'+dato.nidDepartamento+'" ]').text());
+		$('#slpProvinciasNegoc').selectpicker('val', $('#slpProvincias .optProvincia[data-tokens= "'+dato.nidProvincia+'" ]').text());
+		$('#slpDistritosNegoc').selectpicker('val', $('#slpDistritos .optDistrito[data-tokens= "'+dato.nidDistrito+'" ]').text());
+
+		$('#txtDireccionNegocio').val(dato.naddrDireccion);
+		$('#txtNumeroNegoc').val(dato.naddrNumero);
+		$('#txtReferenciaNegoc').val(dato.naddrReferencia);
+
+	});
+});
+
+
 </script>
 <?php } ?>
 </body>
