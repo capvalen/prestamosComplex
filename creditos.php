@@ -3,8 +3,8 @@ header('Content-Type: text/html; charset=utf8');
 date_default_timezone_set('America/Lima');
 include 'php/conkarl.php';
 require_once('vendor/autoload.php');
-include "php/variablesGlobales.php";
 $base58 = new StephenHill\Base58();
+include "php/variablesGlobales.php";
 $hayCaja= require_once("php/comprobarCajaHoy.php");
 $fechaHoy = new DateTime();
 ?>

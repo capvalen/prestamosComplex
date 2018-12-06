@@ -7,13 +7,18 @@ require("conkarl.php");
 $sql= "INSERT INTO `matrimonio`(`idMatrimonio`, `idEsposo`, `idEsposa`, `matrActivo`) VALUES (null, {$_POST['idVaron']},{$_POST['idDama']},1);";
 //echo $sql;
 
-if ($llamadoSQL = $conection->query($sql)) { //Ejecución mas compleja con retorno de dato de sql del procedure.
+if ($llamadoSQL = $esclavo->query($sql)) { //Ejecución mas compleja con retorno de dato de sql del procedure.
 	/* obtener el array de objetos */
-  $last_id = $conection->insert_id;
-  echo $last_id;
-	/* liberar el conjunto de resultados */
+  $last_id = $esclavo->insert_id;
+
+  $sqlEsp="UPDATE `cliente` SET 
+  `idEstadoCivil`=2
+  WHERE `idCliente` in ({$_POST['idVaron']}, {$_POST['idDama']});";
+  $resultadoEsp=$cadena->query($sqlEsp);
 	
-}else{echo '0';}
+  return $last_id;
+	/* liberar el conjunto de resultados */
+}else{return '0';}
 
 
 

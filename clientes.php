@@ -224,11 +224,32 @@ $('#chkDireccion').change(function() {
 		$('#txtDireccionNegocio').focus();
 	}
 });
+$('#txtDniCliente').focusout(function () {
+	if( $('#txtDniCliente').val().length<8 ){
+		$('#lblAlertDuplicado').html('<i class="icofont-exclamation-tringle"></i> El DNI, debe tener 8 dígitos.').removeClass('hidden');
+		bloquearModalCliente(true);
+	}else{
+		$.post('php/verificarClienteRegistrado.php', {texto: $('#txtDniCliente').val()}, function (resp) {
+			if(resp!='0'){
+				$('#lblAlertDuplicado').html('<i class="icofont-exclamation-tringle"></i> Cliente ya registrado: ' + resp).removeClass('hidden');
+				bloquearModalCliente(true);
+			}else{
+				$('#lblAlertDuplicado').addClass('hidden');
+				bloquearModalCliente(false);
+			}
+		});
+	}
+});
 $('#btnGuardarClienteNew').click(function() {
+	$('#modalNewCliente .divError .spanError').text('Un Error').parent().removeClass('hidden');
+	
 	var casa =0;
 
 	if( $('#chkDireccion').is(':checked') ){//true
 		casa=0;}else{ casa=1;}
+	
+	var idParej='';
+	if( $('#sltEstadoCivil').val()== 2 ){ idParej = $('#sltBuscarPareja').val(); }
 		
 	$.ajax({url: 'php/insertarCliente.php', type: 'POST', data: {
 		direccion: $('#txtDireccionCasa').val(),
@@ -258,6 +279,7 @@ $('#btnGuardarClienteNew').click(function() {
 		celularPers: $('#txtCelPersonal').val(),
 		celularRef: $('#txtCelReferencia').val(),
 		civil: $('#sltEstadoCivil').val(),
+		pareja: parseFloat(idParej),
 
 		casa: casa}}).done(function(resp) { console.log(resp)
 			if( parseInt(resp)>0 ){
@@ -382,7 +404,19 @@ if(cargo==1){
 	});
 }
 }//fin de function
+$('#modalNewCliente').on('shown.bs.modal', function () { 
+	bloquearModalCliente(true);
+});
+function bloquearModalCliente(estado) {
+	$('#txtPaternoCliente').attr('disabled', estado);
+	$('#txtMaternoCliente').attr('disabled', estado);
+	$('#txtNombresCliente').attr('disabled', estado);
+	$('#txtDireccionCasa').attr('disabled', estado);
+	$('#txtNumeroCasa').attr('disabled', estado);
+	$('#txtCelPersonal').attr('disabled', estado);
+	$('#txtCelReferencia').attr('disabled', estado);
 
+}
 $('#sltBuscarPareja').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
   $.ajax({url: 'php/listarDireccionPareja.php', type: 'POST', data: { idCli: $('#sltBuscarPareja').val() }}).done(function(resp) {
 		var dato = JSON.parse(resp)[0];

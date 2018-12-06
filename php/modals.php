@@ -105,8 +105,9 @@
 			<div class="row">
 				<p>Por favor rellene cuidadosamente los siguientes campos</p>
 				<div class="row "><div class="col-xs-6">
-					<label for="">D.N.I.</label> <input type="text" id='txtDniCliente' class='form-control soloNumeros'>
+					<label for="">D.N.I.</label> <input type="text" id='txtDniCliente' maxlength="8" class='form-control soloNumeros'>
 				</div>
+				<div class="col-xs-6"><br><label for="" class="hidden red-text text-darken-1" id="lblAlertDuplicado"></label></div>
 				</div>
 				<div class="row">
 					<div class="col-xs-4"><span class="obligatorio">*</span> <label for="">Apellido paterno</label><input type="text" id="txtPaternoCliente" class="form-control"></div>
@@ -143,10 +144,10 @@
 					<label for="">Dirección domiciliar</label>
 					<div class="row container-fluid">
 						<div class="col-xs-4" id="divCalles"><select id="slpCalles" class="selectpicker" data-width="100%" data-live-search="true"  data-size="15" title="Calle"><?php include 'php/OPTCalles.php'; ?></select></div>
-						<div class="col-xs-12 col-sm-8"><input type="text" class="form-control" id="txtDireccionCasa"  placeholder='Dirección de hogar'></div>
-						<div class="col-xs-4"><input type="text" class="form-control" id="txtNumeroCasa" placeholder='#'></div>
+						<div class="col-xs-12 col-sm-8"><input type="text" class="form-control mayuscula" id="txtDireccionCasa"  placeholder='Dirección de hogar'></div>
+						<div class="col-xs-4"><input type="text" class="form-control mayuscula" id="txtNumeroCasa" placeholder='#'></div>
 						<div class="col-xs-4"><select class="selectpicker" title="Zona" id="sltDireccionExtra" data-width="100%" data-live-search="true" data-size="15"><?php include 'php/OPTZona.php'; ?></select></div>
-						<div class="col-xs-12"><input type="text" id='txtReferenciaCasa' class='form-control' placeholder='Referencia de la casa'></div>
+						<div class="col-xs-12"><input type="text" id='txtReferenciaCasa' class='form-control mayuscula' placeholder='Referencia de la casa'></div>
 						<div class="col-xs-4" id="divDepartamentos"><select id="slpDepartamentos" class="selectpicker" data-width="100%" data-live-search="true"  data-size="15" title="Departamento"><?php include 'php/OPTDepartamento.php'; ?></select></div>
 						<div class="col-xs-4" id="idProvincias"><select id="slpProvincias" class="selectpicker" data-width="100%" data-live-search="true" title="Provincia"></select></div>
 						<div class="col-xs-4" id="idDistritos"><select id="slpDistritos" class="selectpicker" data-width="100%" data-live-search="true" title="Distrito"></select></div>
@@ -160,10 +161,10 @@
 				<label style="display: table;">Dirección de negocio</label>
 					<div class="col-xs-4" id="divCallesNeg"><select id="slpCallesNeg" class="selectpicker" data-width="100%" data-live-search="true"  data-size="15" title="Calle"><?php include 'php/OPTCalles.php'; ?></select></div>
 				    
-				    <div class="col-xs-12 col-sm-8"><input type="text" class="form-control" id="txtDireccionNegocio" placeholder='Dirección de negocio'></div>
-						<div class="col-xs-4"><input type="text" class="form-control" id="txtNumeroNegoc" placeholder='#'></div>
+				    <div class="col-xs-12 col-sm-8"><input type="text" class="form-control mayuscula" id="txtDireccionNegocio" placeholder='Dirección de negocio'></div>
+						<div class="col-xs-4"><input type="text" class="form-control mayuscula" id="txtNumeroNegoc" placeholder='#'></div>
 						<div class="col-xs-4"><select class="selectpicker" title="Zona" id="sltDireccionExtraNegoc" data-width="100%" data-live-search="true" data-size="15"><?php include 'php/OPTZona.php'; ?></select></div>
-						<div class="col-xs-12"><input type="text" id='txtReferenciaNegoc' class='form-control' placeholder='Referencia del negocio'></div>
+						<div class="col-xs-12"><input type="text" id='txtReferenciaNegoc' class='form-control mayuscula' placeholder='Referencia del negocio'></div>
 						<div class="col-xs-4" id="divDepartamentosNegoc"><select id="slpDepartamentosNegoc" class="selectpicker" data-width="100%" data-live-search="true"  data-size="15" title="Departamento"><?php include 'php/OPTDepartamento.php'; ?></select></div>
 						<div class="col-xs-4" id="idProvinciasNegoc"><select id="slpProvinciasNegoc" class="selectpicker" data-width="100%" data-live-search="true"  title="Provincia"></select></div>
 						<div class="col-xs-4" id="idDistritosNegoc"><select id="slpDistritosNegoc" class="selectpicker" data-width="100%" data-live-search="true" title="Distrito"></select></div>
@@ -176,7 +177,9 @@
 		</div>
 			
 		<div class="modal-footer">
+			<div class="divError text-left animated fadeIn hidden" style="margin-bottom: 20px;"><i class="icofont icofont-animal-cat-alt-4"></i> Lo sentimos, <span class="spanError"></span></div>
 			<button class="btn btn-infocat btn-outline" id="btnGuardarClienteNew" ><i class="icofont icofont-save"></i> Guardar</button>
+
 		</div>
 	</div>
 	</div>

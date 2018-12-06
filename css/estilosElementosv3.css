@@ -238,7 +238,7 @@ input{height: 40px!important;margin-bottom: 10px;}
 .modal-nuevoProductoLista input {padding-bottom: 5px; margin-bottom: 20px;}
 
 
-.divError, .txtObligatorio{color: rgb(213, 0, 0);}
+.divError, .txtObligatorio, .obligatorio{color: rgb(213, 0, 0);}
 .divError i{font-size: 20px;}
 #ulListadoProductos{font-size: 14px}
 #ulListadoProductos .icoMedia{font-size: 18px}

@@ -47,5 +47,17 @@ $idCliente= $rowDepos[0];
 $consultaDepos->fetch();
 $consultaDepos->close();
 
+
+if($_POST['civil']=='2'):
+  if( $_POST['sexo']=='1' ){
+    $_POST['idVaron']= $idCliente;
+    $_POST['idDama'] = $_POST['pareja'];
+  }else{
+    $_POST['idVaron']= $_POST['pareja'];
+    $_POST['idDama'] = $idCliente;
+  }
+  include 'insertarMatrimonio.php';
+endif;
+
 echo $idCliente;
 ?>
