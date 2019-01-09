@@ -105,7 +105,7 @@
 			<div class="row">
 				<p>Por favor rellene cuidadosamente los siguientes campos</p>
 				<div class="row "><div class="col-xs-6">
-					<label for="">D.N.I.</label> <input type="text" id='txtDniCliente' maxlength="8" class='form-control soloNumeros'>
+					<label for=""><span class="obligatorio">*</span> D.N.I.</label> <input type="text" id='txtDniCliente' maxlength="8" class='form-control soloNumeros'>
 				</div>
 				<div class="col-xs-6"><br><label for="" class="hidden red-text text-darken-1" id="lblAlertDuplicado"></label></div>
 				</div>
@@ -115,7 +115,7 @@
 					<div class="col-xs-4"><label for="">Nombres</label> <input type="text" id="txtNombresCliente" class='form-control'></div>
 				</div>
 				<div class="row">
-					<div class="col-xs-4"><label for="">Sexo</label>
+					<div class="col-xs-4"><label for=""><span class="obligatorio">*</span> Sexo</label>
 						<select class="selectpicker" id="sltSexo" title="Seleccione un sexo" data-width="100%" data-live-search="true" data-size="15">
 							<option value="0">Femenino</option>
 							<option value="1">Masculino</option>
@@ -123,7 +123,7 @@
 					</div>
 			
 					<div class="col-xs-4">
-						<label for="">Estado civil</label>
+						<label for=""><span class="obligatorio">*</span> Estado civil</label>
 						<select class="selectpicker" title="Estado civil" id="sltEstadoCivil" data-width="100%" data-live-search="true" data-size="15">
 							<?php include 'OPTEstadoCivil.php'; ?>
 						</select>
@@ -141,7 +141,7 @@
 					
 				</div>
 				<div class="row container-fluid" id="divDireccionCasa">
-					<label for="">Dirección domiciliar</label>
+					<label for=""><span class="obligatorio">*</span> Dirección domiciliar</label>
 					<div class="row container-fluid">
 						<div class="col-xs-4" id="divCalles"><select id="slpCalles" class="selectpicker" data-width="100%" data-live-search="true"  data-size="15" title="Calle"><?php include 'php/OPTCalles.php'; ?></select></div>
 						<div class="col-xs-12 col-sm-8"><input type="text" class="form-control mayuscula" id="txtDireccionCasa"  placeholder='Dirección de hogar'></div>
@@ -170,8 +170,8 @@
 						<div class="col-xs-4" id="idDistritosNegoc"><select id="slpDistritosNegoc" class="selectpicker" data-width="100%" data-live-search="true" title="Distrito"></select></div>
 				</div>
 				<div class="row">
-					<div class="col-xs-6"><label for="">Celular personal</label> <input type="text" id="txtCelPersonal" class="form-control"></div>
-					<div class="col-xs-6"><label for="">Celular referencial</label> <input type="text" id="txtCelReferencia" class="form-control"></div>
+					<div class="col-xs-6"><label for=""><span class="obligatorio">*</span> Celular personal</label> <input type="text" id="txtCelPersonal" class="form-control"></div>
+					<div class="col-xs-6"><label for=""><span class="obligatorio">*</span> Celular referencial</label> <input type="text" id="txtCelReferencia" class="form-control"></div>
 				</div>
 			
 		</div>

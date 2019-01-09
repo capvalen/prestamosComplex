@@ -42,9 +42,9 @@ $fechaHoy = new DateTime();
 		<div class="row noselect">
 			<div class="col-lg-12 contenedorDeslizable ">
 			<!-- Empieza a meter contenido principal -->
-			<div class="panel panel-default">
+			<div class="panel panel-default hidden">
 			<div class="panel-body">
-				<div class="row col-sm-6 col-md-3">
+				<div class="row col-sm-6 col-md-3 ">
 					<p><strong>Filtro de Créditos:</strong></p>
 					<input type="text" class="form-control" placeholder="CR-00**" id="txtSoloBuscaCreditos">
 				</div>
@@ -154,7 +154,7 @@ $fechaHoy = new DateTime();
 			<table class="table table-hover" id="tableSubIds">
 				<thead>
 				<tr>
-					<th>Sub-ID</th>
+					<th>N°</th>
 					<th>Fecha programada</th>
 					<th>Cuota</th>
 					<th>Cancelación</th>
@@ -170,7 +170,7 @@ $fechaHoy = new DateTime();
 			if($respCuot = $cadena->query($sqlCuot)){ $k=0;
 				while($rowCuot = $respCuot->fetch_assoc()){ ?>
 				<tr>
-					<td>SP-<?= $rowCuot['idCuota']; ?></td>
+					<td><?= $k; ?></td>
 					<td><?php $fechaCu= new DateTime($rowCuot['cuotFechaPago']); echo $fechaCu->format('d/m/Y'); ?></td>
 					<td><?= number_format($rowCuot['cuotCuota'],2); ?></td>
 					<td><?php if($rowCuot['cuotCuota']=='0.00' && $rowCuot['cuotPago']=='0.00'): echo "Desembolso"; elseif($rowCuot['cuotFechaCancelacion']=='0000-00-00'): echo 'Pendiente'; else: echo $rowCuot['cuotFechaCancelacion']; endif;  ?></td>
@@ -345,6 +345,7 @@ $fechaHoy = new DateTime();
 		<? endif; //fin de get Credito ?>
 		<? if( !isset($_GET['titular']) && !isset($_GET['credito']) && !isset($_GET['record']) ): ?>
 		<h3 class="purple-text text-lighten-1">Zona créditos</h3><hr>
+		<p>Comience buscando un crédito en la parte superior.</p>
 		
 		<? endif; ?>
 				
