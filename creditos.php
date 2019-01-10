@@ -5,7 +5,7 @@ include 'php/conkarl.php';
 require_once('vendor/autoload.php');
 $base58 = new StephenHill\Base58();
 include "php/variablesGlobales.php";
-$hayCaja= require_once("php/comprobarCajaHoy.php");
+$hayCaja= intval(require_once("php/comprobarCajaHoy.php"));
 $fechaHoy = new DateTime();
 ?>
 
@@ -23,6 +23,7 @@ $fechaHoy = new DateTime();
 
 		<!-- Bootstrap Core CSS -->
 		<?php include 'headers.php'; ?>
+		<link rel="stylesheet" href="css/awesome-bootstrap-checkbox.css?version=1.0.1">
 </head>
 
 <body>
@@ -128,10 +129,13 @@ $fechaHoy = new DateTime();
 				<button class="btn btn-danger btn-outline btn-lg" id="btnDenyVerificarCredito"><i class="icofont-thumbs-down"></i> Denegar crédito</button>
 			<?php endif; ?>
 
-			<?php	if(isset($_GET['credito']) && $rowCr['presAprobado']<> 'Sin aprobar' && $rowCr['presAprobado']<> "Rechazado" && $rowCr['presFechaDesembolso']=='Desembolso pendiente' && in_array($_COOKIE['ckPower'], $soloAdmis)): ?>
-			<?php if( $hayCaja==true ): ?>
+			<?php if(isset($_GET['credito']) && $rowCr['presAprobado']<> 'Sin aprobar' && $rowCr['presAprobado']<> "Rechazado" && in_array($_COOKIE['ckPower'], $soloAdmis)): ?>
+			<?php if( $hayCaja==true ):
+				if($rowCr['presFechaDesembolso']=='Desembolso pendiente'): ?>
 				<button class="btn btn-warning btn-outline btn-lg" id="btnDesembolsar"><i class="icofont-money"></i> Desembolsar</button>
+			<?php else:?>
 				<button class="btn btn-infocat btn-outline btn-lg" id="btnsolicitarDeuda"><i class="icofont-money"></i> Pago global</button>
+			<?php endif; ?>
 			<?php else: ?> 
 				<div class="col-xs-12 col-md-7"><br>
 					<div class="alert alert-morado container-fluid" role="alert">
@@ -402,6 +406,10 @@ $fechaHoy = new DateTime();
 				<p>Pago total: <strong>S/ <span id="spaCTotal"></span></strong></p>
 			</div>
 			<div class="">
+				<div class="checkbox checkbox-infocat checkbox-circle">
+					<input id="chkExonerar" class="styled" type="checkbox" >
+					<label for="chkExonerar"> Exonerar mora </label>
+				</div>
 				<label for="">¿Cuánto dinero dispone el cliente?</label>
 				<input type="number" class="form-control input-lg text-center inputGrande esMoneda" id="txtPagaClienteVariable" style="margin: 0;">
 			</div>
@@ -694,7 +702,56 @@ $('#btnDesembolsar').click(function() {
 		}
 	});
 });
-<?php  endif; ?>
+$('#chkExonerar').change(function(){
+	
+	var total = parseFloat($('#spaCTotal').text());
+
+	if( $('#chkExonerar').prop('checked') ){
+		var mora= parseFloat($('#spaCPrecioMora').text());
+		$('#spaCPrecioMora').attr('data-mora', $('#spaCPrecioMora').text());
+		$('#spaCTotal').text((total-mora).toFixed(2));
+		$('#spaCPrecioMora').text('0.00');
+	}else{
+		$('#spaCPrecioMora').text( $('#spaCPrecioMora').attr('data-mora'));
+		var mora= parseFloat($('#spaCPrecioMora').text());
+		$('#spaCTotal').text((total+mora).toFixed(2));
+	}
+});
+$('.spanPrint').click(function() {
+	var padre = $(this).parent().parent();
+	var queEs= $(this).attr('data-print');
+	switch(queEs){
+		case 'parcial':
+			$.post("http://localhost/prestamosComplex/impresion/ticketCuotaParcial.php", {
+				cknombreEmpresa: '<?= $_COOKIE['cknombreEmpresa'];?>',
+				ckLemaEmpresa: '<?= $_COOKIE['ckLemaEmpresa'];?>',
+				queMichiEs: 'Adelanto de cuota',
+				hora: moment().format('DD/MM/YYYY h:mm a'),
+				cliente: $('#spanTitular').text(),
+				codPrest: $('#h3Codigo').attr('data-id'),
+				monto: padre.find('.tdPagoCli').attr('data-pago'),
+				usuario: '<?= $_COOKIE["ckAtiende"];?>',
+				ckcelularEmpresa: '<?= $_COOKIE['ckcelularEmpresa'];?>',
+				cktelefonoEmpresa: '<?= $_COOKIE['cktelefonoEmpresa'];?>'
+			}, function(resp){ console.log(resp)});
+		break;
+		case 'completo':
+			$.post("http://localhost/prestamosComplex/impresion/ticketCuotaParcial.php", {
+				cknombreEmpresa: '<?= $_COOKIE['cknombreEmpresa'];?>',
+				ckLemaEmpresa: '<?= $_COOKIE['ckLemaEmpresa'];?>',
+				queMichiEs: 'Cuota cancelada',
+				hora: moment().format('DD/MM/YYYY h:mm a'),
+				cliente: $('#spanTitular').text(),
+				codPrest: $('#h3Codigo').attr('data-id'),
+				monto: padre.find('.tdPagoCli').attr('data-pago'),
+				usuario: '<?= $_COOKIE["ckAtiende"];?>',
+				ckcelularEmpresa: '<?= $_COOKIE['ckcelularEmpresa'];?>',
+				cktelefonoEmpresa: '<?= $_COOKIE['cktelefonoEmpresa'];?>'
+			}, function(resp){ console.log(resp)});
+		break;
+	}
+});
+<?php endif; ?>
 <?php if(isset($_GET['credito']) && $rowCr['presAprobado']=== 'Sin aprobar'): ?>
 $('#btnShowVerificarCredito').click(function() {
 	$('#modalVerificarCredito').modal('show');
@@ -755,18 +812,37 @@ $('#btnsolicitarDeuda').click(function() {
 	});
 });
 $('#btnRealizarDeposito').click(function() {
+	pantallaOver(true);
+	$('#h1Bien2').children().remove();
 	if( $('#txtPagaClienteVariable').val()<=0 ){
 		$('#mostrarRealizarPagoCombo .divError').removeClass('hidden').find('.spanError').text('No se permiten valores negativos o ceros.');
 	}else if($('#txtPagaClienteVariable').val() > parseFloat($('#spaCTotal').text())  ){
 		$('#mostrarRealizarPagoCombo .divError').removeClass('hidden').find('.spanError').html('El monto máximo que se puede depositar es <strong>S/ '+$('#spaCTotal').text()+'</strong> .');
+	}else if( $('#txtPagaClienteVariable').val() < parseFloat($('#spaCPrecioMora').text()) ){
+		$('#mostrarRealizarPagoCombo .divError').removeClass('hidden').find('.spanError').html('Debe adeltar y cubrir mínimo la mora <strong>S/ '+$('#spaCPrecioMora').text()+'</strong> .');
 	}else{
-		$.ajax({url: 'php/pagarCreditoCombo.php', type: 'POST', data: {credito: '<?php if(isset ($_GET['credito'])){echo $_GET['credito'];}else{echo '';}; ?>', dinero: $('#txtPagaClienteVariable').val() }}).done(function(resp) {
-			console.log(resp)
-			if(resp==true){
-				location.reload();
+		$.ajax({url: 'php/pagarCreditoCombo.php', type: 'POST', data: {credito: '<?php if(isset ($_GET['credito'])){echo $_GET['credito'];}else{echo '';}; ?>', dinero: $('#txtPagaClienteVariable').val(), exonerar: eval($('#chkExonerar').prop('checked')) }}).done(function(resp) { console.log( resp );
+			var data = JSON.parse(resp); console.log(resp)
+			$('#mostrarRealizarPagoCombo').modal('hide');
+			
+			if( data.length >0 ){
+				if(data[0].diasMora>0){
+					$('#tituloPeque2').text('Items cancelados');
+					$('#h1Bien2').append(`<span  data-quees='${data[0].queEs}' data-monto='${data[0].montoCuota}' data-id='0'>Mora: S/ `+ parseFloat(data[0].sumaMora).toFixed(2) +`</span><br>`);
+					for(i=1; i<data.length; i++){$('#h1Bien2').append(`<span data-quees='${data[i].queEs}' data-monto='${data[i].montoCuota}' data-id='${data[i].cuota}'>SP-`+ data[i].cuota +`: S/ `+ parseFloat(data[i].montoCuota).toFixed(2) +`</span><br>`);}
+				}else{
+					for(i=0; i<data.length; i++){$('#h1Bien2').append(`<span data-quees='${data[i].queEs}' data-monto='${data[i].montoCuota}' data-id='${data[i].cuota}'>SP-`+ data[i].cuota +`: S/ `+ parseFloat(data[i].montoCuota).toFixed(2) +`</span><br>`);}
+				}
+				$('#modalGuardadoCorrecto2').modal('show');
+				
 			}
+			// if(resp==true){
+			// 	location.reload();
+			// }
+
 		});
 	}
+	pantallaOver(false);
 });
 <?php } ?>
 </script>

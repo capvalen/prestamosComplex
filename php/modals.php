@@ -47,6 +47,30 @@
 </div>
 </div>
 
+<!-- Modal para decir que el pago es correcto #2  -->
+<div class="modal fade" id="modalGuardadoCorrecto2" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+<div class="modal-dialog modal-sm" role="document">
+	<div class="modal-content">
+		<div class="modal-header-primary">
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			<h4 class="modal-title" id="myModalLabel"><i class="icofont icofont-social-readernaut"></i> Datos guardados</h4>
+		</div>
+		<div class="modal-body">
+			<div class="container-fluid">
+			<div class="row">
+			<img src="images/path4585.png?ver=1.1" class="img-responsive" alt=""><br>
+			<p class="text-center blue-text text-darken-1" id="tituloPeque2"><em>Información guardada</em></p>
+			<p class="text-center blue-text text-darken-1"><span id="spanBien2"></span><h3 class="text-center blue-text text-darken-1" id="h1Bien2"></h3></p>
+			</div>
+		</div>
+			
+		<div class="modal-footer">
+			<button class="btn btn-primary btn-outline" id="btnPrintTicketPagoGlo" data-dismiss="modal"><i class="icofont-paper"></i> Imprimir ticket</button>
+		</div>
+	</div>
+	</div>
+</div>
+</div>
 
 <div class="modal fade modal-iniciarSesion" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
 <div class="modal-dialog modal-sm" role="document">

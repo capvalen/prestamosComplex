@@ -4,8 +4,10 @@ require("conkarl.php");
 require_once('../vendor/autoload.php');
 $base58 = new StephenHill\Base58();
 
+$filas=array();
+
 $k=0;
-$diasMora=0;
+$diasMora=0; $moraTotal =0;
 $dinero= $_POST['dinero'];
 $idPrestamo = $base58->decode($_POST['credito']);
 $sql= "SELECT * FROM prestamo_cuotas
@@ -32,17 +34,26 @@ while($row=$resultado->fetch_assoc()){
 }
 $resultado->data_seek(0);
 
-if($diasMora>0){ //$diasMora-=1;
-	$moraTotal = $diasMora*$mora;
-	/* HACER INSERT a CAJA por MORA por X días*/
-	
+if( $_POST['exonerar']=='true' && $diasMora>0 ):
+   /* HACER INSERT a CAJA por MORA por sólo lo que el cliente diga */
 	$sqlMora="INSERT INTO `caja`(`idCaja`, `idPrestamo`, `idCuota`, `idTipoProceso`, `cajaFecha`, `cajaValor`, `cajaObservacion`, `cajaMoneda`, `cajaActivo`, `idUsuario`)
-	VALUES (null,{$idPrestamo},0,81,now(),{$moraTotal},'Mora por {$diasMora} días por el periodo {$primFecha} y {$ultFecha}',1,1,{$_COOKIE['ckidUsuario']});";
+	VALUES (null,{$idPrestamo},0,86,now(),0,'Se condonó {$diasMora} días por el periodo {$primFecha} y {$ultFecha}',1,1,{$_COOKIE['ckidUsuario']});";
+	//echo $sqlMora;
+	
+	$resultadoMora=$esclavo->query($sqlMora);
+else:
+	if($diasMora>0){ //$diasMora-=1;
+		$moraTotal = $diasMora*$mora;
+		/* HACER INSERT a CAJA por MORA por X días*/
+		$sqlMora="INSERT INTO `caja`(`idCaja`, `idPrestamo`, `idCuota`, `idTipoProceso`, `cajaFecha`, `cajaValor`, `cajaObservacion`, `cajaMoneda`, `cajaActivo`, `idUsuario`)
+		VALUES (null,{$idPrestamo},0,81,now(),{$moraTotal},'Mora por {$diasMora} días por el periodo {$primFecha} y {$ultFecha}',1,1,{$_COOKIE['ckidUsuario']});";
+	//echo "mora pagada ".$moraTotal."\n";
+	$dinero -= $moraTotal;
+	$resultadoMora=$esclavo->query($sqlMora);
+	}
+endif;
 
-//echo "mora pagada ".$moraTotal."\n";
-$dinero -= $moraTotal;
-}
-$resultadoMora=$esclavo->query($sqlMora);
+$filas[] = array('sumaMora' => $moraTotal, 'diasMora' => $diasMora, 'queEs'=> 'Pago mora' );
 
 $sentenciaLarga ='';
 while($row2=$resultado->fetch_assoc()){
@@ -57,6 +68,7 @@ while($row2=$resultado->fetch_assoc()){
 			WHERE `idCuota` = {$row2['idCuota']};
 			INSERT INTO `caja`(`idCaja`, `idPrestamo`, `idCuota`, `idTipoProceso`, `cajaFecha`, `cajaValor`, `cajaObservacion`, `cajaMoneda`, `cajaActivo`, `idUsuario`)
 			VALUES (null,{$idPrestamo},{$row2['idCuota']},80,now(),{$debePendiente},'',1,1,{$_COOKIE['ckidUsuario']});";
+			$filas[] = array('cuota' => $row2['idCuota'], 'montoCuota' => $debePendiente, 'queEs'=> 'Cuota cancelada' );
 	}
 	else{
 		if( $dinero <= 0){
@@ -70,6 +82,7 @@ while($row2=$resultado->fetch_assoc()){
 			WHERE `idCuota` = {$row2['idCuota']};
 			INSERT INTO `caja`(`idCaja`, `idPrestamo`, `idCuota`, `idTipoProceso`, `cajaFecha`, `cajaValor`, `cajaObservacion`, `cajaMoneda`, `cajaActivo`, `idUsuario`)
 			VALUES (null,{$idPrestamo},{$row2['idCuota']},33,now(),{$dinero},'',1,1,{$_COOKIE['ckidUsuario']})";
+			$filas[] = array('cuota' => $row2['idCuota'], 'montoCuota' => $dinero, 'queEs'=> 'Adelanto cuota' );
 		}
 	}
 	$dinero= round($dinero - $debePendiente,2);
@@ -77,7 +90,8 @@ while($row2=$resultado->fetch_assoc()){
 
 $respuLargo=$prisionero->multi_query($sentenciaLarga);
 if($respuLargo){
-	echo true;
+	//echo true;
+	echo json_encode($filas);
 }
 
 ?>
