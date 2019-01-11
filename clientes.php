@@ -245,9 +245,10 @@ $('#btnGuardarClienteNew').click(function() {
 	if( $('#txtDniCliente').val()=='' || $('#txtDniCliente').val().length<8 ){
 		$('#modalNewCliente .divError .spanError').text('Falta ingresar un D.N.I. válido').parent().removeClass('hidden');
 	}else if( $('#txtPaternoCliente').val()=='' || $('#txtMaternoCliente').val()=='' || $('#txtNombresCliente').val()==''  ){
-		$('#modalNewCliente .divError .spanError').text('Falta ingresar un D.N.I. válido').parent().removeClass('hidden');
-	}
-	
+		$('#modalNewCliente .divError .spanError').text('Falta ingresar los Apellidos o Nombres').parent().removeClass('hidden');
+	}else if( $('#txtDireccionCasa').val()=='' || $('#txtNumeroCasa').val()=='' || $('#txtReferenciaCasa').val()=='' ){
+		$('#modalNewCliente .divError .spanError').text('Falta ingresar Dirección').parent().removeClass('hidden');
+	}else{
 	
 	var casa =0;
 
@@ -293,6 +294,7 @@ $('#btnGuardarClienteNew').click(function() {
 				window.location.href = 'clientes.php?buscar='+resp;
 			}
 	});
+	}
 });
 // $('.soloNumeros').on('input', function () {
 // 	this.value = this.value.replace(/[^0-9]/g,'');
@@ -315,7 +317,7 @@ $('#sltEstadoCivil').on('changed.bs.select', function (e, clickedIndex, isSelect
 	cargarDataPosiblesParejas() 
 });
 function cargarDataPosiblesParejas() {
-	if( $('#sltEstadoCivil').val()==2 && $('#sltEstadoCivil').val()!='' ){
+	if( $.inArray($('#sltEstadoCivil').val(), ["2", "3"])!=-1 && $('#sltEstadoCivil').val()!='' ){
 		$('#divSoloCasado').removeClass('hidden');
 		var sexOpu = '';
 		if( $('#sltSexo').val()==0 ){

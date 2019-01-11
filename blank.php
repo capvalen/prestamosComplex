@@ -1,3 +1,6 @@
+<?php 
+include "php/variablesGlobales.php";
+ ?>
 <!DOCTYPE html>
 <html lang="es">
 

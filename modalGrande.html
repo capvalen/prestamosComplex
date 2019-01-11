@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>Document</title>
+	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+</head>
+<body>
+	<style>
+
+@media (min-width: 759px){
+	.modal-largo {
+    width: 750px;
+	}
+}
+@media (min-width: 859px){
+	.modal-largo {
+    width: 850px;
+	}
+}
+@media (min-width: 959px){
+	.modal-largo {
+    width: 950px;
+	}
+}
+@media (min-width: 1059px){
+	.modal-largo {
+    width: 1050px;
+	}
+}		
+@media (min-width: 1159px){
+	.modal-largo {
+    width: 1150px;
+	}
+}
+@media (min-width: 1259px){
+	.modal-largo {
+    width: 1250px;
+	}
+}
+
+		
+	</style>
+	<button class="btn btn-warning" id="btnLlamar">activar modal</button>
+
+	<!-- Modal -->
+  <div class="modal fade" id="myModal" role="dialog">
+			<div class="modal-dialog modal-largo">
+			
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">×</button>
+						<h4 class="modal-title">Modal Header</h4>
+					</div>
+					<div class="modal-body">
+						<p>Some text in the modal.</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+				
+			</div>
+		</div>
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+<!-- Bootstrap Core JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script>
+	$('#btnLlamar').click(function() {
+		$('#myModal').modal('show');
+	});
+</script>
+</body>
+</html>

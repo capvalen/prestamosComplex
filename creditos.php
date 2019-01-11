@@ -95,7 +95,7 @@ $fechaHoy = new DateTime();
 			<div class="row">
 				<div class="col-sm-2"><label for="">Fecha préstamo</label><p><?php $fechaAut= new DateTime($rowCr['presFechaAutom']); echo $fechaAut->format('j/m/Y h:m a'); ?></p></div>
 				<div class="col-sm-2"><label for="">Fecha desemboslo</label><p><?php if($rowCr['presFechaDesembolso']=='Desembolso pendiente'){echo $rowCr['presFechaDesembolso'];}else{$fechaDes= new DateTime($rowCr['presFechaDesembolso']); echo $fechaDes->format('j/m/Y h:m a');} ?></p></div>
-				<div class="col-sm-2"><label for="">Desembolso</label><p>S/ <?= number_format($rowCr['presMontoDesembolso'],2); ?></p></div>
+				<div class="col-sm-2"><label for="">Desembolso</label><p id="pDesembolso" data-valor="<?= number_format($rowCr['presMontoDesembolso'],2); ?>">S/ <?= number_format($rowCr['presMontoDesembolso'],2); ?></p></div>
 				<div class="col-sm-2"><label for="">Periodo</label><p><?= $rowCr['tpreDescipcion']; ?></p></div>
 				<div class="col-sm-2"><label for="">Analista</label><p><?= $rowCr['usuNombres']; ?></p></div>
 			</div>
@@ -105,7 +105,7 @@ $fechaHoy = new DateTime();
 			<p><strong>Clientes asociados a éste préstamo:</strong></p>
 
 			<div class="row">
-				<ul>
+				<ul id="listadoClientesUL">
 		<?php $sqlInv= "SELECT i.idPrestamo, lower(concat(c.cliApellidoPaterno, ' ', c.cliApellidoMaterno, ', ', c.cliNombres)) as `datosCliente` , tpc.tipcDescripcion, i.idCliente FROM `involucrados` i
 				inner join cliente c on i.idCliente = c.idCliente
 				inner join tipocliente tpc on tpc.idTipoCliente = i.idTipoCliente
@@ -341,7 +341,7 @@ $fechaHoy = new DateTime();
 				</thead>
 					<tbody id="tbodyResultados"></tbody>
 				</table>
-				</div>
+			</div>
 			</div>
 		
 			
@@ -357,7 +357,7 @@ $fechaHoy = new DateTime();
 			</div>
 		</div>
 </div>
-<!-- /#page-content-wrapper -->
+</div><!-- /#page-content-wrapper -->
 </div><!-- /#wrapper -->
 
 <!-- Modal para mostrar los clientes coincidentes -->
@@ -515,7 +515,7 @@ $('#tbodySocios').on('click','.btnRemoveCanasta',function() {
 	$(this).parent().parent().remove();
 	//console.log( $(this).parent().parent().html() );
 });
-$('#tableSubIds tr').last().find('td').eq(5).text('0.00')
+$('#tableSubIds tr').last().find('td').eq(5).text('0.00');
 
 
 }); //Fin de Document ready
@@ -695,12 +695,19 @@ $('#dtpFechaIniciov3').change(function() {
 });
 <?php if(isset( $_GET['credito'])): ?>
 $('#btnDesembolsar').click(function() {
-	$.ajax({url: 'php/updateDesembolsoDia.php', type: 'POST', data:{ credito: '<?= $_GET['credito'];?>' }}).done(function(resp) {
-		console.log(resp)
-		if(resp==true){
-			location.reload();
-		}
-	});
+	//$.ajax({url: 'php/updateDesembolsoDia.php', type: 'POST', data:{ credito: '<?= $_GET['credito'];?>' }}).done(function(resp) {
+//		console.log(resp)
+//		if(resp==true){
+			$.post('http://localhost/impresion/ticketBase.php', {
+				titulo: 'Desembolso',
+				codigo: '<?= $base58->decode($_GET["credito"]); ?>',
+				cliente: $('#listadoClientesUL').children().first().text().replace(' [Titular]', ''),
+				monto: $('#pDesembolso').attr('data-valor'),
+				usuario: '<?= $_COOKIE["ckAtiende"];?>'
+			});
+	//		location.reload();
+	//	}
+	//});
 });
 $('#chkExonerar').change(function(){
 	

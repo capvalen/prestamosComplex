@@ -16,7 +16,7 @@
 		</div>
 			
 		<div class="modal-footer">
-			<button class="btn btn-primary btn-outline" data-dismiss="modal" ><i class="icofont icofont-social-smugmug"></i> Bien</button>
+			<button class="btn btn-primary btn-outline" data-dismiss="modal" ><i class="icofont-smugmug"></i> Bien</button>
 		</div>
 	</div>
 	</div>
@@ -116,7 +116,7 @@
 	</div>
 </div>
 
-<!-- Modal para decir que hubo un error  -->
+<!-- Modal para decir un nuevo cliente  -->
 <div class="modal fade" id="modalNewCliente" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
 <div class="modal-dialog modal-lg" role="document">
 	<div class="modal-content">
@@ -134,9 +134,9 @@
 				<div class="col-xs-6"><br><label for="" class="hidden red-text text-darken-1" id="lblAlertDuplicado"></label></div>
 				</div>
 				<div class="row">
-					<div class="col-xs-4"><span class="obligatorio">*</span> <label for="">Apellido paterno</label><input type="text" id="txtPaternoCliente" class="form-control"></div>
-					<div class="col-xs-4"><span class="obligatorio">*</span> <label for="">Apellido materno</label><input type="text" id="txtMaternoCliente" class="form-control"></div>
-					<div class="col-xs-4"><label for="">Nombres</label> <input type="text" id="txtNombresCliente" class='form-control'></div>
+					<div class="col-xs-4"><span class="obligatorio">*</span> <label for="">Apellido paterno</label><input type="text" id="txtPaternoCliente" class="form-control" autocomplete="nope"></div>
+					<div class="col-xs-4"><span class="obligatorio">*</span> <label for="">Apellido materno</label><input type="text" id="txtMaternoCliente" class="form-control" autocomplete="nope"></div>
+					<div class="col-xs-4"><label for="">Nombres</label> <input type="text" id="txtNombresCliente" class='form-control' autocomplete="nope"></div>
 				</div>
 				<div class="row">
 					<div class="col-xs-4"><label for=""><span class="obligatorio">*</span> Sexo</label>
@@ -168,36 +168,34 @@
 					<label for=""><span class="obligatorio">*</span> Dirección domiciliar</label>
 					<div class="row container-fluid">
 						<div class="col-xs-4" id="divCalles"><select id="slpCalles" class="selectpicker" data-width="100%" data-live-search="true"  data-size="15" title="Calle"><?php include 'php/OPTCalles.php'; ?></select></div>
-						<div class="col-xs-12 col-sm-8"><input type="text" class="form-control mayuscula" id="txtDireccionCasa"  placeholder='Dirección de hogar'></div>
-						<div class="col-xs-4"><input type="text" class="form-control mayuscula" id="txtNumeroCasa" placeholder='#'></div>
+						<div class="col-xs-12 col-sm-8"><input type="text" class="form-control mayuscula" id="txtDireccionCasa"  placeholder='Dirección de hogar' autocomplete='nope'></div>
+						<div class="col-xs-4"><input type="text" class="form-control mayuscula" id="txtNumeroCasa" placeholder='#' autocomplete='nope'></div>
 						<div class="col-xs-4"><select class="selectpicker" title="Zona" id="sltDireccionExtra" data-width="100%" data-live-search="true" data-size="15"><?php include 'php/OPTZona.php'; ?></select></div>
-						<div class="col-xs-12"><input type="text" id='txtReferenciaCasa' class='form-control mayuscula' placeholder='Referencia de la casa'></div>
+						<div class="col-xs-12"><input type="text" id='txtReferenciaCasa' class='form-control mayuscula' placeholder='Referencia de la casa' autocomplete='nope'></div>
 						<div class="col-xs-4" id="divDepartamentos"><select id="slpDepartamentos" class="selectpicker" data-width="100%" data-live-search="true"  data-size="15" title="Departamento"><?php include 'php/OPTDepartamento.php'; ?></select></div>
 						<div class="col-xs-4" id="idProvincias"><select id="slpProvincias" class="selectpicker" data-width="100%" data-live-search="true" title="Provincia"></select></div>
 						<div class="col-xs-4" id="idDistritos"><select id="slpDistritos" class="selectpicker" data-width="100%" data-live-search="true" title="Distrito"></select></div>
 					</div>
 					<div class="checkbox checkbox-infocat checkbox-circle">
-						<input type="checkbox" class="styled" checked id="chkDireccion">
+						<input type="checkbox" class="styled" checked id="chkDireccion" autocomplete='nope'>
 						<label for="chkDireccion">Dirección de hogar y de negocio son iguales</label>
 					</div>
 				</div>
 				<div class="row container-fluid hidden" id="divDireccionNegocio">
 				<label style="display: table;">Dirección de negocio</label>
 					<div class="col-xs-4" id="divCallesNeg"><select id="slpCallesNeg" class="selectpicker" data-width="100%" data-live-search="true"  data-size="15" title="Calle"><?php include 'php/OPTCalles.php'; ?></select></div>
-				    
-				    <div class="col-xs-12 col-sm-8"><input type="text" class="form-control mayuscula" id="txtDireccionNegocio" placeholder='Dirección de negocio'></div>
-						<div class="col-xs-4"><input type="text" class="form-control mayuscula" id="txtNumeroNegoc" placeholder='#'></div>
+				    <div class="col-xs-12 col-sm-8"><input type="text" class="form-control mayuscula" id="txtDireccionNegocio" placeholder='Dirección de negocio' autocomplete='nope'></div>
+						<div class="col-xs-4"><input type="text" class="form-control mayuscula" id="txtNumeroNegoc" placeholder='#' autocomplete='nope'></div>
 						<div class="col-xs-4"><select class="selectpicker" title="Zona" id="sltDireccionExtraNegoc" data-width="100%" data-live-search="true" data-size="15"><?php include 'php/OPTZona.php'; ?></select></div>
-						<div class="col-xs-12"><input type="text" id='txtReferenciaNegoc' class='form-control mayuscula' placeholder='Referencia del negocio'></div>
+						<div class="col-xs-12"><input type="text" id='txtReferenciaNegoc' class='form-control mayuscula' placeholder='Referencia del negocio' autocomplete='nope'></div>
 						<div class="col-xs-4" id="divDepartamentosNegoc"><select id="slpDepartamentosNegoc" class="selectpicker" data-width="100%" data-live-search="true"  data-size="15" title="Departamento"><?php include 'php/OPTDepartamento.php'; ?></select></div>
 						<div class="col-xs-4" id="idProvinciasNegoc"><select id="slpProvinciasNegoc" class="selectpicker" data-width="100%" data-live-search="true"  title="Provincia"></select></div>
 						<div class="col-xs-4" id="idDistritosNegoc"><select id="slpDistritosNegoc" class="selectpicker" data-width="100%" data-live-search="true" title="Distrito"></select></div>
 				</div>
 				<div class="row">
-					<div class="col-xs-6"><label for=""><span class="obligatorio">*</span> Celular personal</label> <input type="text" id="txtCelPersonal" class="form-control"></div>
-					<div class="col-xs-6"><label for=""><span class="obligatorio">*</span> Celular referencial</label> <input type="text" id="txtCelReferencia" class="form-control"></div>
+					<div class="col-xs-6"><label for=""><span class="obligatorio">*</span> Celular personal</label> <input type="text" id="txtCelPersonal" class="form-control" autocomplete='nope'></div>
+					<div class="col-xs-6"><label for=""><span class="obligatorio">*</span> Celular referencial</label> <input type="text" id="txtCelReferencia" class="form-control" autocomplete='nope'></div>
 				</div>
-			
 		</div>
 			
 		<div class="modal-footer">
