@@ -123,11 +123,13 @@ $fechaHoy = new DateTime();
 			<hr>
 
 			<div class="container row" id="rowBotonesMaestros">
-				<button class="btn btn-negro btn-outline btn-lg " id="btnImpresionPrevia" data-pre="<?= $_GET['credito'];?>"><i class="icofont-print"></i> Imprimir cronograma</button>
-			<?php if(isset($_GET['credito']) && $rowCr['presAprobado']== 'Sin aprobar'): ?>
-				<button class="btn btn-success btn-outline btn-lg" id="btnShowVerificarCredito"><i class="icofont-check-circled"></i> Aprobar crédito</button>
-				<button class="btn btn-danger btn-outline btn-lg" id="btnDenyVerificarCredito"><i class="icofont-thumbs-down"></i> Denegar crédito</button>
-			<?php endif; ?>
+				<div class="col-xs-12 col-md-6">
+					<button class="btn btn-negro btn-outline btn-lg " id="btnImpresionPrevia" data-pre="<?= $_GET['credito'];?>"><i class="icofont-print"></i> Imprimir cronograma</button>
+				<?php if(isset($_GET['credito']) && $rowCr['presAprobado']== 'Sin aprobar'): ?>
+					<button class="btn btn-success btn-outline btn-lg" id="btnShowVerificarCredito"><i class="icofont-check-circled"></i> Aprobar crédito</button>
+					<button class="btn btn-danger btn-outline btn-lg" id="btnDenyVerificarCredito"><i class="icofont-thumbs-down"></i> Denegar crédito</button>
+				<?php endif; ?>
+				</div>
 
 			<?php if(isset($_GET['credito']) && $rowCr['presAprobado']<> 'Sin aprobar' && $rowCr['presAprobado']<> "Rechazado" && in_array($_COOKIE['ckPower'], $soloAdmis)): ?>
 			<?php if( $hayCaja==true ):
@@ -137,14 +139,14 @@ $fechaHoy = new DateTime();
 				<button class="btn btn-infocat btn-outline btn-lg" id="btnsolicitarDeuda"><i class="icofont-money"></i> Pago global</button>
 			<?php endif; ?>
 			<?php else: ?> 
-				<div class="col-xs-12 col-md-7"><br>
+				<div class="col-xs-12 col-md-6"><br>
 					<div class="alert alert-morado container-fluid" role="alert">
 						<div class="col-xs-4 col-sm-2 col-md-3">
 							<img src="images/ghost.png" alt="img-responsive" width="100%">
 						</div>
 						<div class="col-xs-8">
 							<strong>Alerta</strong> <p>No se encuentra ninguna caja aperturada.</p>
-							<a class="btn btn-default btn-lg btn-outline pull-left" href="caja.php" style="color:#333"><i class="icofont icofont-rounded-double-right"></i> Ir a caja</a>
+							<a class="btn btn-dark btn-outline btn-xs pull-left" href="caja.php" style="color:#333"><i class="icofont icofont-rounded-double-right"></i> Ir a caja</a>
 						</div>
 					</div>
 				</div>
